@@ -24,13 +24,10 @@ public class App extends Application {
     public void start(Stage stage) throws IOException {
         
         scene = new Scene(loadFXML("primary"), 640, 480,Color.AQUAMARINE);
-
         Image icon = new Image(getClass().getResourceAsStream("/Bomberman-icon.png"));
         stage.setTitle("Don Pepe and His Balloons");
         stage.getIcons().add(icon);
         stage.setScene(scene);
-
-
 
         stage.setResizable(false);
         stage.show();
@@ -48,6 +45,9 @@ public class App extends Application {
 
     public static void main(String[] args) {
         launch();
+    }
+    public static Scene getScene() {
+        return scene;
     }
 
 }
