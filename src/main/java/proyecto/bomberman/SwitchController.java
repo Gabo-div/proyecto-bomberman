@@ -30,7 +30,7 @@ public class SwitchController {
 
     @FXML
     private void switchToSinglePlayer() throws IOException{
-
+        App.setRoot("singleplayer");
     }
 
     @FXML
