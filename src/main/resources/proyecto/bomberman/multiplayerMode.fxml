@@ -2,6 +2,7 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -20,7 +21,7 @@
                   <Font size="14.0" />
                </font>
             </Button>
-            <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" prefHeight="45.0" prefWidth="135.0" text="Join Party" VBox.vgrow="ALWAYS">
+            <Button maxHeight="-Infinity" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#switchToJoinLobby" prefHeight="45.0" prefWidth="135.0" text="Join Party" VBox.vgrow="ALWAYS">
                <font>
                   <Font size="14.0" />
                </font>
@@ -32,5 +33,6 @@
             </Button>
          </children>
       </VBox>
+      <TextField fx:id="Nickname" layoutX="35.0" layoutY="143.0" />
    </children>
 </AnchorPane>

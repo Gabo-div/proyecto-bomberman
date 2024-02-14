@@ -9,6 +9,18 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+
+import java.io.IOException;
+import Multiplayer.Client;
+import Multiplayer.Server;
+
+
+
+/**
+ * JavaFX App
+ * 
+ */
+
 public class App extends Application {
 
   private static Scene scene;
