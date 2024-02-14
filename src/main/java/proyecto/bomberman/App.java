@@ -10,6 +10,9 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 
+import Multiplayer.Client;
+import Multiplayer.Server;
+
 
 
 /**
