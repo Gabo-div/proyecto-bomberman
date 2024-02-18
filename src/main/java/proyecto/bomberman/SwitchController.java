@@ -4,6 +4,7 @@ import java.io.IOException;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 
@@ -13,6 +14,13 @@ public class SwitchController {
 
   @FXML private AnchorPane scenePane;
   @FXML private Button logoutButton;
+  @FXML private static TextField Nickname;
+
+  public static String getNickname() {
+
+    String nickname = Nickname.getText();
+    return nickname;
+  }
 
   @FXML
   private void switchToMultiplayer() throws IOException {
@@ -32,6 +40,18 @@ public class SwitchController {
   @FXML
   private void switchToHostParty() throws IOException {
     App.setRoot("hostParty");
+  }
+
+  @FXML
+  private void SwitchToCreateParty() throws IOException {
+
+    App.setRoot("lobbyroom");
+  }
+
+  @FXML
+  private void switchToJoinLobby() throws IOException {
+
+    App.setRoot("Joinlobby");
   }
 
   @FXML
