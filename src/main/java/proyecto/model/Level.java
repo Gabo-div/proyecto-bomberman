@@ -8,12 +8,12 @@ public class Level {
 
   private int width;
   private int height;
-  private int[][] level;
+  private Block[][] level;
 
   public Level(int width, int height, Coord<Double> playerCoord) {
     this.width = width;
     this.height = height;
-    level = new int[height][width];
+    level = new Block[height][width];
 
     ArrayList<Integer> availablePositions = new ArrayList<>();
 
@@ -24,11 +24,11 @@ public class Level {
         boolean isEven = x % 2 == 0 && y % 2 == 0;
 
         if (isBorder || isEven) {
-          level[y][x] = 1;
+          level[y][x] = new WallBlock(new Coord<>(x, y));
           continue;
         }
 
-        level[y][x] = 0;
+        level[y][x] = new AirBlock(new Coord<>(x, y));
 
         availablePositions.add(x + y * width);
       }
@@ -55,7 +55,7 @@ public class Level {
     for (int i = 0; i < brickPositions.size(); i++) {
       int x = brickPositions.get(i) % width;
       int y = brickPositions.get(i) / width;
-      level[y][x] = 2;
+      level[y][x] = new BrickBlock(new Coord<>(x, y));
     }
   }
 
@@ -63,21 +63,61 @@ public class Level {
 
   public int getHeight() { return height; }
 
-  public int getTile(int x, int y) { return level[y][x]; }
+  public Block getBlock(int x, int y) { return level[y][x]; }
 
-  public void setTile(int x, int y, int value) { level[y][x] = value; }
+  public Block getBlock(Coord<Integer> coord) {
+    return level[coord.y][coord.x];
+  }
+
+  public void setBlock(Block block) {
+    level[block.getCoord().y][block.getCoord().x] = block;
+  }
 
   public boolean checkPlayerCollisionX(int x, double y) {
     int yFloor = (int)Math.floor(y);
     int yCeil = (int)Math.ceil(y);
 
-    return getTile(x, yFloor) != 0 || getTile(x, yCeil) != 0;
+    Block blockFloor = getBlock(x, yFloor);
+    Block blockCeil = getBlock(x, yCeil);
+
+    boolean isFloorAir = blockFloor instanceof AirBlock;
+    boolean isCeilAir = blockCeil instanceof AirBlock;
+
+    if (!isFloorAir || !isCeilAir) {
+      return true;
+    }
+
+    boolean hasFloorEntity = ((AirBlock)blockFloor).hasEntity();
+    boolean hasCeilEntity = ((AirBlock)blockCeil).hasEntity();
+
+    if (hasFloorEntity || hasCeilEntity) {
+      return true;
+    }
+
+    return false;
   }
 
   public boolean checkPlayerCollisionY(double x, int y) {
     int xFloor = (int)Math.floor(x);
     int xCeil = (int)Math.ceil(x);
 
-    return getTile(xFloor, y) != 0 || getTile(xCeil, y) != 0;
+    Block blockFloor = getBlock(xFloor, y);
+    Block blockCeil = getBlock(xCeil, y);
+
+    boolean isFloorAir = blockFloor instanceof AirBlock;
+    boolean isCeilAir = blockCeil instanceof AirBlock;
+
+    if (!isFloorAir || !isCeilAir) {
+      return true;
+    }
+
+    boolean hasFloorEntity = ((AirBlock)blockFloor).hasEntity();
+    boolean hasCeilEntity = ((AirBlock)blockCeil).hasEntity();
+
+    if (hasFloorEntity || hasCeilEntity) {
+      return true;
+    }
+
+    return false;
   }
 }

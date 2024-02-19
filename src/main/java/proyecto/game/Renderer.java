@@ -8,11 +8,14 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import proyecto.bomberman.App;
+import proyecto.model.Block;
 import proyecto.model.Bomb;
+import proyecto.model.BrickBlock;
 import proyecto.model.Coord;
 import proyecto.model.Level;
 import proyecto.model.Sprite;
 import proyecto.model.SpriteSheet;
+import proyecto.model.WallBlock;
 
 public class Renderer {
 
@@ -92,11 +95,14 @@ public class Renderer {
 
     for (int y = 0; y < level.getHeight(); y++) {
       for (int x = 0; x < level.getWidth(); x++) {
-        if (level.getTile(x, y) == 1) {
+
+        Block block = level.getBlock(x, y);
+
+        if (block instanceof WallBlock) {
           offGc.drawImage(blockSprite.getImage(), x, y, 1, 1);
         }
 
-        if (level.getTile(x, y) == 2) {
+        if (block instanceof BrickBlock) {
           offGc.drawImage(brickSprite.getImage(), x, y, 1, 1);
         }
       }
@@ -120,7 +126,7 @@ public class Renderer {
 
       int radius = bomb.getRadius();
 
-      offGc.setFill(Color.RED);
+      offGc.setFill(Color.ORANGE);
 
       for (int x = 0; x <= radius; x++) {
 
@@ -128,7 +134,7 @@ public class Renderer {
           continue;
         }
 
-        if (level.getTile(bombCoord.x + x, bombCoord.y) == 1) {
+        if (level.getBlock(bombCoord.x + x, bombCoord.y) instanceof WallBlock) {
           break;
         }
 
@@ -141,7 +147,7 @@ public class Renderer {
           continue;
         }
 
-        if (level.getTile(bombCoord.x + x, bombCoord.y) == 1) {
+        if (level.getBlock(bombCoord.x + x, bombCoord.y) instanceof WallBlock) {
           break;
         }
 
@@ -154,7 +160,7 @@ public class Renderer {
           continue;
         }
 
-        if (level.getTile(bombCoord.x, bombCoord.y + y) == 1) {
+        if (level.getBlock(bombCoord.x, bombCoord.y + y) instanceof WallBlock) {
           break;
         }
 
@@ -167,12 +173,15 @@ public class Renderer {
           continue;
         }
 
-        if (level.getTile(bombCoord.x, bombCoord.y + y) == 1) {
+        if (level.getBlock(bombCoord.x, bombCoord.y + y) instanceof WallBlock) {
           break;
         }
 
         offGc.fillRect(bombCoord.x, bombCoord.y + y, 1, 1);
       }
+
+      offGc.setFill(Color.RED);
+      offGc.fillRect(bombCoord.x, bombCoord.y, 1, 1);
     }
   }
 

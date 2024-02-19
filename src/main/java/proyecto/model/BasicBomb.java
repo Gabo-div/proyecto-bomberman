@@ -28,11 +28,29 @@ public class BasicBomb extends Bomb {
         continue;
       }
 
-      if (level.getTile(coord.x + x, coord.y) == 1) {
+      Block block = level.getBlock(coord.x + x, coord.y);
+
+      if (block instanceof WallBlock) {
         break;
       }
 
-      level.setTile(coord.x + x, coord.y, 0);
+      if (block instanceof AirBlock) {
+        Entity<Integer> entity = ((AirBlock)block).getEntity();
+
+        if (entity instanceof Bomb) {
+          Bomb bomb = (Bomb)entity;
+
+          if (bomb.exploded()) {
+            continue;
+          }
+
+          bomb.setExplosionTick(explosionTick + 1);
+        }
+      }
+
+      if (block instanceof BrickBlock) {
+        level.setBlock(new AirBlock(new Coord<>(coord.x + x, coord.y)));
+      }
     }
 
     for (int x = 0; x >= -radius; x--) {
@@ -41,11 +59,29 @@ public class BasicBomb extends Bomb {
         continue;
       }
 
-      if (level.getTile(coord.x + x, coord.y) == 1) {
+      Block block = level.getBlock(coord.x + x, coord.y);
+
+      if (block instanceof WallBlock) {
         break;
       }
 
-      level.setTile(coord.x + x, coord.y, 0);
+      if (block instanceof AirBlock) {
+        Entity<Integer> entity = ((AirBlock)block).getEntity();
+
+        if (entity instanceof Bomb) {
+          Bomb bomb = (Bomb)entity;
+
+          if (bomb.exploded()) {
+            continue;
+          }
+
+          bomb.setExplosionTick(explosionTick + 1);
+        }
+      }
+
+      if (block instanceof BrickBlock) {
+        level.setBlock(new AirBlock(new Coord<>(coord.x + x, coord.y)));
+      }
     }
 
     for (int y = 0; y <= radius; y++) {
@@ -54,11 +90,29 @@ public class BasicBomb extends Bomb {
         continue;
       }
 
-      if (level.getTile(coord.x, coord.y + y) == 1) {
+      Block block = level.getBlock(coord.x, coord.y + y);
+
+      if (block instanceof WallBlock) {
         break;
       }
 
-      level.setTile(coord.x, coord.y + y, 0);
+      if (block instanceof AirBlock) {
+        Entity<Integer> entity = ((AirBlock)block).getEntity();
+
+        if (entity instanceof Bomb) {
+          Bomb bomb = (Bomb)entity;
+
+          if (bomb.exploded()) {
+            continue;
+          }
+
+          bomb.setExplosionTick(explosionTick + 1);
+        }
+      }
+
+      if (block instanceof BrickBlock) {
+        level.setBlock(new AirBlock(new Coord<>(coord.x, coord.y + y)));
+      }
     }
 
     for (int y = 0; y >= -radius; y--) {
@@ -67,11 +121,29 @@ public class BasicBomb extends Bomb {
         continue;
       }
 
-      if (level.getTile(coord.x, coord.y + y) == 1) {
+      Block block = level.getBlock(coord.x, coord.y + y);
+
+      if (block instanceof WallBlock) {
         break;
       }
 
-      level.setTile(coord.x, coord.y + y, 0);
+      if (block instanceof AirBlock) {
+        Entity<Integer> entity = ((AirBlock)block).getEntity();
+
+        if (entity instanceof Bomb) {
+          Bomb bomb = (Bomb)entity;
+
+          if (bomb.exploded()) {
+            continue;
+          }
+
+          bomb.setExplosionTick(explosionTick + 1);
+        }
+      }
+
+      if (block instanceof BrickBlock) {
+        level.setBlock(new AirBlock(new Coord<>(coord.x, coord.y + y)));
+      }
     }
   }
 }

@@ -47,6 +47,8 @@ public class SingleplayerGame {
   public ArrayList<Bomb> getBombs() { return bombs; }
 
   public void movePlayer() {
+    Coord<Double> playerCoord = player.getCoord();
+    Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
     double speed = player.getSpeed();
 
     double movementStateX = 0;
@@ -65,37 +67,43 @@ public class SingleplayerGame {
       movementStateY += 1;
     }
 
-    movePlayerX(movementStateX * speed);
-    movePlayerY(movementStateY * speed);
-  }
+    Double speedX = movementStateX * speed;
+    Double speedY = movementStateY * speed;
 
-  private void movePlayerX(double speed) {
-    Coord<Double> playerCoord = player.getCoord();
-    Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
+    Double newX = newCoord.x + speedX;
+    Double newY = newCoord.y + speedY;
 
-    newCoord.x += speed;
-    double x = speed > 0 ? Math.ceil(newCoord.x) : Math.floor(newCoord.x);
+    double x = speedX > 0 ? Math.ceil(newX) : Math.floor(newX);
+    double y = speedY > 0 ? Math.ceil(newY) : Math.floor(newY);
 
     if (!level.checkPlayerCollisionX((int)x, newCoord.y)) {
-      player.setCoord(newCoord);
+      newCoord.x = newX;
     }
-  }
-
-  private void movePlayerY(double speed) {
-    Coord<Double> playerCoord = player.getCoord();
-    Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
-
-    newCoord.y += speed;
-    double y = speed > 0 ? Math.ceil(newCoord.y) : Math.floor(newCoord.y);
 
     if (!level.checkPlayerCollisionY(newCoord.x, (int)y)) {
-      player.setCoord(newCoord);
+      newCoord.y = newY;
     }
+
+    player.setCoord(newCoord);
   }
 
   public void addBomb() {
     Coord<Double> playerCoord = player.getCoord();
-    Bomb newBomb = new BasicBomb(Coord.round(playerCoord));
+    Coord<Integer> bombCoord = Coord.round(playerCoord);
+
+    Block block = level.getBlock(bombCoord);
+
+    if (!(block instanceof AirBlock)) {
+      return;
+    }
+
+    AirBlock airBlock = (AirBlock)block;
+
+    if (airBlock.hasEntity()) {
+      return;
+    }
+
+    Bomb newBomb = new BasicBomb(bombCoord);
 
     // if (bombType == BombType.BASIC) {
     // newBomb = new BasicBomb(coords);
@@ -104,6 +112,7 @@ public class SingleplayerGame {
     int bombDelay = newBomb.getDelayTicks();
     newBomb.setExplosionTick(ticksCount + bombDelay);
     bombs.add(newBomb);
+    airBlock.setEntity(newBomb);
   }
 
   public void loop(double deltaMs) {
@@ -121,6 +130,9 @@ public class SingleplayerGame {
         bomb.explode(level);
       } else if (bomb.exploded() && ticksCount >= removeTick) {
         bombs.remove(i);
+
+        AirBlock airBlock = (AirBlock)level.getBlock(bomb.getCoord());
+        airBlock.setEntity(null);
       }
     }
   }

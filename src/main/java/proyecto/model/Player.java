@@ -1,6 +1,6 @@
 package proyecto.model;
 
-public class Player {
+public class Player extends Entity<Double> {
   Coord<Double> coord;
   BombType bombType;
   Double speed = 0.25;

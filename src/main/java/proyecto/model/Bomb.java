@@ -1,6 +1,6 @@
 package proyecto.model;
 
-public abstract class Bomb {
+public abstract class Bomb extends Entity<Integer> {
 
   protected Coord<Integer> coord;
   protected boolean exploded = false;
@@ -8,7 +8,10 @@ public abstract class Bomb {
 
   public Bomb(Coord<Integer> coord) { this.coord = coord; }
 
-  public Coord<Integer> getCoord() { return coord; }
+  @Override
+  public Coord<Integer> getCoord() {
+    return new Coord<>(coord.x, coord.y);
+  }
 
   public boolean exploded() { return exploded; }
 
