@@ -3,11 +3,13 @@ package proyecto.game;
 import java.util.ArrayList;
 import javafx.scene.input.KeyCode;
 import proyecto.model.*;
+import proyecto.model.Character;
 
 public class SingleplayerGame {
 
   private static SingleplayerGame instance;
-  private boolean isRunning = true;
+
+  private GameState gameState = GameState.RUNNING;
 
   private SpriteSheet spriteSheet;
   private Level level;
@@ -15,11 +17,13 @@ public class SingleplayerGame {
   private ArrayList<Bomb> bombs;
   private int ticksCount = 0;
   private double currentTimeMs = 0;
-  KeyHandler keyHandler = KeyHandler.getInstance();
+  private KeyHandler keyHandler = KeyHandler.getInstance();
+  private ArrayList<Character> characters = new ArrayList<>();
 
   private SingleplayerGame() {
     spriteSheet = SpriteSheet.getInstance();
-    player = new Player(1, 1);
+    player = new Player(1, 1, 3);
+    characters.add(player);
     player.setBombType(BombType.BASIC);
     bombs = new ArrayList<Bomb>();
     level = new Level(15, 13, player.getCoord());
@@ -33,10 +37,19 @@ public class SingleplayerGame {
   }
 
   public void start() {
-    keyHandler.onPressed(KeyCode.ENTER, () -> this.addBomb());
+
+    keyHandler.onPressed(KeyCode.ENTER, () -> {
+      if (gameState == GameState.RUNNING) {
+        this.addBomb();
+      }
+    });
   }
 
-  public boolean isRunning() { return isRunning; }
+  public void end() { instance = null; }
+
+  public GameState getGameState() { return gameState; }
+
+  public void setGameState(GameState gameState) { this.gameState = gameState; }
 
   public SpriteSheet getSpriteSheet() { return spriteSheet; }
 
@@ -116,8 +129,16 @@ public class SingleplayerGame {
   }
 
   public void loop(double deltaMs) {
-    calculateTick(deltaMs);
+    if (gameState != GameState.RUNNING) {
+      return;
+    }
 
+    if (player.getLifes() <= 0) {
+      gameState = GameState.GAMEOVER;
+      return;
+    }
+
+    calculateTick(deltaMs);
     movePlayer();
 
     for (int i = 0; i < bombs.size(); i++) {
@@ -127,7 +148,7 @@ public class SingleplayerGame {
       int removeTick = bomb.getExplosionTick() + removeBombsTicks;
 
       if (!bomb.exploded() && ticksCount >= bomb.getExplosionTick()) {
-        bomb.explode(level);
+        bomb.explode(level, characters);
       } else if (bomb.exploded() && ticksCount >= removeTick) {
         bombs.remove(i);
 

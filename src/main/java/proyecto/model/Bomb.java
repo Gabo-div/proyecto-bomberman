@@ -1,5 +1,7 @@
 package proyecto.model;
 
+import java.util.List;
+
 public abstract class Bomb extends Entity<Integer> {
 
   protected Coord<Integer> coord;
@@ -21,7 +23,7 @@ public abstract class Bomb extends Entity<Integer> {
     this.explosionTick = explosionTick;
   }
 
-  public abstract void explode(Level level);
+  public abstract void explode(Level level, List<Character> characters);
 
   public abstract int getRadius();
 

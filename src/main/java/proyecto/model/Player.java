@@ -1,19 +1,19 @@
 package proyecto.model;
 
-public class Player extends Entity<Double> {
-  Coord<Double> coord;
+public class Player extends Character {
   BombType bombType;
-  Double speed = 0.25;
 
-  public Player(double x, double y) { coord = new Coord<>(x, y); }
+  public Player(Coord<Double> coord, int lifes) {
+    super(coord, 0.25, lifes);
+    this.bombType = BombType.BASIC;
+  }
 
-  public Coord<Double> getCoord() { return coord; }
-
-  public void setCoord(Coord<Double> coord) { this.coord = coord; }
+  public Player(double x, double y, int lifes) {
+    super(new Coord<>(x, y), 0.25, lifes);
+    this.bombType = BombType.BASIC;
+  }
 
   public BombType getBombType() { return bombType; }
 
   public void setBombType(BombType bombType) { this.bombType = bombType; }
-
-  public Double getSpeed() { return speed; }
 }

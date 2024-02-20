@@ -1,5 +1,7 @@
 package proyecto.model;
 
+import java.util.List;
+import java.util.function.BiFunction;
 import proyecto.game.GameConstants;
 
 public class BasicBomb extends Bomb {
@@ -19,19 +21,29 @@ public class BasicBomb extends Bomb {
   }
 
   @Override
-  public void explode(Level level) {
+  public void explode(Level level, List<Character> characters) {
     exploded = true;
 
-    for (int x = 0; x <= radius; x++) {
+    BiFunction<Integer, Integer, Boolean> explosion =
+        (Integer x, Integer y) -> {
+      Coord<Integer> eCoord = new Coord<>(this.coord.x + x, this.coord.y + y);
 
-      if (coord.x + x >= level.getWidth()) {
-        continue;
+      for (Character character : characters) {
+        Coord<Integer> cCoord = Coord.round(character.getCoord());
+
+        if (cCoord.x == eCoord.x && cCoord.y == eCoord.y) {
+          character.setLifes(character.getLifes() - 1);
+        }
       }
 
-      Block block = level.getBlock(coord.x + x, coord.y);
+      if (eCoord.x >= level.getWidth()) {
+        return true;
+      }
+
+      Block block = level.getBlock(eCoord);
 
       if (block instanceof WallBlock) {
-        break;
+        return false;
       }
 
       if (block instanceof AirBlock) {
@@ -41,108 +53,41 @@ public class BasicBomb extends Bomb {
           Bomb bomb = (Bomb)entity;
 
           if (bomb.exploded()) {
-            continue;
+            return true;
           }
 
-          bomb.setExplosionTick(explosionTick + 1);
+          bomb.setExplosionTick(explosionTick);
         }
       }
 
       if (block instanceof BrickBlock) {
-        level.setBlock(new AirBlock(new Coord<>(coord.x + x, coord.y)));
+        level.setBlock(new AirBlock(eCoord));
+      }
+
+      return true;
+    };
+
+    for (int x = 0; x <= radius; x++) {
+      if (!explosion.apply(x, 0)) {
+        break;
       }
     }
 
     for (int x = 0; x >= -radius; x--) {
-
-      if (coord.x + x < 0) {
-        continue;
-      }
-
-      Block block = level.getBlock(coord.x + x, coord.y);
-
-      if (block instanceof WallBlock) {
+      if (!explosion.apply(x, 0)) {
         break;
-      }
-
-      if (block instanceof AirBlock) {
-        Entity<Integer> entity = ((AirBlock)block).getEntity();
-
-        if (entity instanceof Bomb) {
-          Bomb bomb = (Bomb)entity;
-
-          if (bomb.exploded()) {
-            continue;
-          }
-
-          bomb.setExplosionTick(explosionTick + 1);
-        }
-      }
-
-      if (block instanceof BrickBlock) {
-        level.setBlock(new AirBlock(new Coord<>(coord.x + x, coord.y)));
       }
     }
 
     for (int y = 0; y <= radius; y++) {
-
-      if (coord.y + y >= level.getHeight()) {
-        continue;
-      }
-
-      Block block = level.getBlock(coord.x, coord.y + y);
-
-      if (block instanceof WallBlock) {
+      if (!explosion.apply(0, y)) {
         break;
-      }
-
-      if (block instanceof AirBlock) {
-        Entity<Integer> entity = ((AirBlock)block).getEntity();
-
-        if (entity instanceof Bomb) {
-          Bomb bomb = (Bomb)entity;
-
-          if (bomb.exploded()) {
-            continue;
-          }
-
-          bomb.setExplosionTick(explosionTick + 1);
-        }
-      }
-
-      if (block instanceof BrickBlock) {
-        level.setBlock(new AirBlock(new Coord<>(coord.x, coord.y + y)));
       }
     }
 
     for (int y = 0; y >= -radius; y--) {
-
-      if (coord.y + y < 0) {
-        continue;
-      }
-
-      Block block = level.getBlock(coord.x, coord.y + y);
-
-      if (block instanceof WallBlock) {
+      if (!explosion.apply(0, y)) {
         break;
-      }
-
-      if (block instanceof AirBlock) {
-        Entity<Integer> entity = ((AirBlock)block).getEntity();
-
-        if (entity instanceof Bomb) {
-          Bomb bomb = (Bomb)entity;
-
-          if (bomb.exploded()) {
-            continue;
-          }
-
-          bomb.setExplosionTick(explosionTick + 1);
-        }
-      }
-
-      if (block instanceof BrickBlock) {
-        level.setBlock(new AirBlock(new Coord<>(coord.x, coord.y + y)));
       }
     }
   }

@@ -9,6 +9,15 @@ public abstract class GameTimer extends AnimationTimer {
   double media = 0;
 
   @Override
+  public void start() {
+    super.start();
+    lastNano = 0;
+    max = -1;
+    min = -1;
+    media = 0;
+  }
+
+  @Override
   public void handle(long nowNano) {
     if (lastNano == 0) {
       lastNano = nowNano;
