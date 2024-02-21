@@ -24,6 +24,10 @@ public class SingleplayerController implements Initializable {
   private GameTimer gameTimer = new GameTimer() {
     @Override
     public void tick(double deltaMs) {
+      if (game.getGameState() != GameState.RUNNING) {
+        gameTimer.stop();
+      }
+
       game.loop(deltaMs);
       renderer.render();
     }
@@ -31,7 +35,6 @@ public class SingleplayerController implements Initializable {
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
-    System.err.println("Iniciando singleplayer");
 
     URL cssURL = App.class.getResource("singleplayer.css");
     String urlString = cssURL.toString();
@@ -68,7 +71,6 @@ public class SingleplayerController implements Initializable {
 
       if (gameState == GameState.RUNNING) {
         game.setGameState(GameState.PAUSED);
-        gameTimer.stop();
       } else if (gameState == GameState.PAUSED) {
         game.setGameState(GameState.RUNNING);
         gameTimer.start();

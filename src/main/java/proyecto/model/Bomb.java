@@ -1,14 +1,16 @@
 package proyecto.model;
 
-import java.util.List;
-
 public abstract class Bomb extends Entity<Integer> {
 
   protected Coord<Integer> coord;
   protected boolean exploded = false;
   protected int explosionTick = 0;
+  protected int firepower;
 
-  public Bomb(Coord<Integer> coord) { this.coord = coord; }
+  public Bomb(Coord<Integer> coord, int firepower) {
+    this.coord = coord;
+    this.firepower = firepower;
+  }
 
   @Override
   public Coord<Integer> getCoord() {
@@ -23,9 +25,9 @@ public abstract class Bomb extends Entity<Integer> {
     this.explosionTick = explosionTick;
   }
 
-  public abstract void explode(Level level, List<Character> characters);
+  public int getRadius() { return firepower; }
 
-  public abstract int getRadius();
+  public abstract void explode(Level level);
 
   public abstract int getDelayTicks();
 }

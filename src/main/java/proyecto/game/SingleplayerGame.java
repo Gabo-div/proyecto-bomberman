@@ -18,15 +18,15 @@ public class SingleplayerGame {
   private int ticksCount = 0;
   private double currentTimeMs = 0;
   private KeyHandler keyHandler = KeyHandler.getInstance();
-  private ArrayList<Character> characters = new ArrayList<>();
 
   private SingleplayerGame() {
     spriteSheet = SpriteSheet.getInstance();
-    player = new Player(1, 1, 3);
-    characters.add(player);
+    Coord<Double> playerCoord = new Coord<>(1.0, 1.0);
+    player = new Player(playerCoord, 3, 2);
     player.setBombType(BombType.BASIC);
     bombs = new ArrayList<Bomb>();
-    level = new Level(15, 13, player.getCoord());
+
+    level = new Level(15, 13, player);
   }
 
   public static SingleplayerGame getInstance() {
@@ -80,6 +80,18 @@ public class SingleplayerGame {
       movementStateY += 1;
     }
 
+    if (movementStateX > 0) {
+      player.setDirection(Direction.RIGHT);
+    } else if (movementStateX < 0) {
+      player.setDirection(Direction.LEFT);
+    }
+
+    if (movementStateY > 0) {
+      player.setDirection(Direction.DOWN);
+    } else if (movementStateY < 0) {
+      player.setDirection(Direction.UP);
+    }
+
     Double speedX = movementStateX * speed;
     Double speedY = movementStateY * speed;
 
@@ -89,19 +101,85 @@ public class SingleplayerGame {
     double x = speedX > 0 ? Math.ceil(newX) : Math.floor(newX);
     double y = speedY > 0 ? Math.ceil(newY) : Math.floor(newY);
 
-    if (!level.checkPlayerCollisionX((int)x, newCoord.y)) {
+    if (!level.checkCollisionX((int)x, newCoord.y)) {
       newCoord.x = newX;
     }
 
-    if (!level.checkPlayerCollisionY(newCoord.x, (int)y)) {
+    Character collidedX = level.checkCharacterCollisions((int)x, newCoord.y);
+
+    if (collidedX instanceof Enemy && !player.isInvincible()) {
+      player.setLifes(player.getLifes() - 1);
+      Integer invincibilityTicks = GameConstants.secondsToTicks(2);
+      player.makeInvincibleUntil(ticksCount + invincibilityTicks);
+    }
+
+    if (!level.checkCollisionY(newCoord.x, (int)y)) {
       newCoord.y = newY;
+    }
+
+    Character collidedY = level.checkCharacterCollisions(newCoord.x, (int)y);
+
+    if (collidedY instanceof Enemy && !player.isInvincible()) {
+      player.setLifes(player.getLifes() - 1);
+      Integer invincibilityTicks = GameConstants.secondsToTicks(2);
+      player.makeInvincibleUntil(ticksCount + invincibilityTicks);
     }
 
     player.setCoord(newCoord);
   }
 
+  public void moveCharacters() {
+    for (Character character : level.getCharacters()) {
+      if (character instanceof Player) {
+        continue;
+      }
+
+      if (character.isDead()) {
+        continue;
+      }
+
+      Direction direction = character.getDirection();
+      Double speed = character.getSpeed();
+      Coord<Double> characterCoord = character.getCoord();
+      Coord<Double> newCoord = new Coord<>(characterCoord.x, characterCoord.y);
+
+      if (direction == Direction.LEFT || direction == Direction.RIGHT) {
+        int movementStateX = direction == Direction.RIGHT ? 1 : -1;
+
+        Double speedX = movementStateX * speed;
+
+        Double newX = newCoord.x + speedX;
+        double x = speedX > 0 ? Math.ceil(newX) : Math.floor(newX);
+
+        if (level.checkCollisionX((int)x, newCoord.y)) {
+          Direction newDirection = direction.getOpposite();
+          character.setDirection(newDirection);
+        } else {
+          newCoord.x = newX;
+          character.setCoord(newCoord);
+        }
+      }
+
+      if (direction == Direction.UP || direction == Direction.DOWN) {
+        int movementStateY = direction == Direction.DOWN ? 1 : -1;
+        Double speedY = movementStateY * speed;
+        Double newY = newCoord.y + speedY;
+        double y = speedY > 0 ? Math.ceil(newY) : Math.floor(newY);
+
+        if (level.checkCollisionY(newCoord.x, (int)y)) {
+          Direction newDirection = direction.getOpposite();
+          character.setDirection(newDirection);
+        } else {
+          newCoord.y = newY;
+          character.setCoord(newCoord);
+        }
+      }
+    }
+  }
+
   public void addBomb() {
     Coord<Double> playerCoord = player.getCoord();
+    Integer playerFirepower = player.getFirepower();
     Coord<Integer> bombCoord = Coord.round(playerCoord);
 
     Block block = level.getBlock(bombCoord);
@@ -116,7 +194,7 @@ public class SingleplayerGame {
       return;
     }
 
-    Bomb newBomb = new BasicBomb(bombCoord);
+    Bomb newBomb = new BasicBomb(bombCoord, playerFirepower);
 
     // if (bombType == BombType.BASIC) {
     // newBomb = new BasicBomb(coords);
@@ -133,14 +211,32 @@ public class SingleplayerGame {
       return;
     }
 
-    if (player.getLifes() <= 0) {
+    if (player.isDead()) {
       gameState = GameState.GAMEOVER;
       return;
     }
 
     calculateTick(deltaMs);
+    handleInvencibility();
     movePlayer();
+    moveCharacters();
+    handleBombs();
+  }
 
+  private void handleInvencibility() {
+    Integer playerInvencibilityTicks = player.getInvincibilityTicks();
+
+    if (playerInvencibilityTicks == -1) {
+      return;
+    }
+
+    if (playerInvencibilityTicks <= ticksCount) {
+      player.setInvincible(false);
+      player.setInvincibilityTicks(-1);
+    }
+  }
+
+  private void handleBombs() {
     for (int i = 0; i < bombs.size(); i++) {
       Bomb bomb = bombs.get(i);
 
@@ -148,7 +244,7 @@ public class SingleplayerGame {
       int removeTick = bomb.getExplosionTick() + removeBombsTicks;
 
       if (!bomb.exploded() && ticksCount >= bomb.getExplosionTick()) {
-        bomb.explode(level, characters);
+        bomb.explode(level);
       } else if (bomb.exploded() && ticksCount >= removeTick) {
         bombs.remove(i);
 

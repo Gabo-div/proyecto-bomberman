@@ -10,12 +10,16 @@ public class Level {
   private int height;
   private Block[][] level;
 
-  public Level(int width, int height, Coord<Double> playerCoord) {
+  ArrayList<Integer> availablePositions = new ArrayList<>();
+
+  private ArrayList<Character> characters = new ArrayList<>();
+
+  public Level(int width, int height, Player player) {
     this.width = width;
     this.height = height;
     level = new Block[height][width];
 
-    ArrayList<Integer> availablePositions = new ArrayList<>();
+    Coord<Integer> playerCoord = Coord.round(player.getCoord());
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
@@ -34,19 +38,43 @@ public class Level {
       }
     }
 
-    for (int oy = -1; oy <= 1; oy++) {
-      for (int ox = -1; ox <= 1; ox++) {
-        int posX = (int)Math.round(playerCoord.x) + ox;
-        int posY = (int)Math.round(playerCoord.y) + oy;
+    characters.add(player);
+    clearPositionsNearby(playerCoord.x, playerCoord.y);
 
-        int index = availablePositions.indexOf(posX + posY * width);
+    int enemiesCount = 0;
+    while (enemiesCount < 5) {
+      double enemydX = Math.random() * width - 1;
+      double enemydY = Math.random() * height - 1;
 
-        if (index == -1) {
-          continue;
-        }
+      int enemyX = (int)enemydX;
+      int enemyY = (int)enemydY;
 
-        availablePositions.remove(index);
+      Coord<Double> enemyCoord = new Coord<>((double)enemyX, (double)enemyY);
+
+      if (!(level[enemyY][enemyX] instanceof AirBlock)) {
+        continue;
       }
+
+      Direction direction = Direction.random();
+
+      if (level[enemyY - 1][enemyX] instanceof WallBlock &&
+          level[enemyY + 1][enemyX] instanceof WallBlock) {
+        direction = Direction.randomX();
+      }
+
+      if (level[enemyY][enemyX - 1] instanceof WallBlock &&
+          level[enemyY][enemyX + 1] instanceof WallBlock) {
+        direction = Direction.randomY();
+      }
+
+      BasicEnemy enemy = new BasicEnemy(enemyCoord);
+
+      enemy.setDirection(direction);
+      characters.add(enemy);
+
+      clearPositionsNearby(enemyX, enemyY);
+
+      enemiesCount++;
     }
 
     Collections.shuffle(availablePositions);
@@ -57,6 +85,31 @@ public class Level {
       int y = brickPositions.get(i) / width;
       level[y][x] = new BrickBlock(new Coord<>(x, y));
     }
+  }
+
+  private void clearPositionsNearby(int x, int y) {
+    for (int oy = -1; oy <= 1; oy++) {
+      for (int ox = -1; ox <= 1; ox++) {
+        int posX = x + ox;
+        int posY = y + oy;
+
+        int index = availablePositions.indexOf(posX + posY * width);
+
+        if (index == -1) {
+          continue;
+        }
+
+        availablePositions.remove(index);
+      }
+    }
+  }
+
+  public List<Character> getCharacters() { return characters; }
+
+  public void addCharacter(Character character) { characters.add(character); }
+
+  public void removeCharacter(Character character) {
+    characters.remove(character);
   }
 
   public int getWidth() { return width; }
@@ -73,7 +126,7 @@ public class Level {
     level[block.getCoord().y][block.getCoord().x] = block;
   }
 
-  public boolean checkPlayerCollisionX(int x, double y) {
+  public boolean checkCollisionX(int x, double y) {
     int yFloor = (int)Math.floor(y);
     int yCeil = (int)Math.ceil(y);
 
@@ -97,7 +150,7 @@ public class Level {
     return false;
   }
 
-  public boolean checkPlayerCollisionY(double x, int y) {
+  public boolean checkCollisionY(double x, int y) {
     int xFloor = (int)Math.floor(x);
     int xCeil = (int)Math.ceil(x);
 
@@ -119,5 +172,37 @@ public class Level {
     }
 
     return false;
+  }
+
+  public Character checkCharacterCollisions(double x, double y) {
+    for (Character character : characters) {
+      if (character instanceof Player) {
+        continue;
+      }
+
+      if (character.isDead()) {
+        continue;
+      }
+
+      Coord<Double> pCoord = new Coord<Double>(x, y);
+      Coord<Double> cCoord = character.getCoord();
+
+      double x1 = pCoord.x;
+      double y1 = pCoord.y;
+
+      double x2 = cCoord.x;
+      double y2 = cCoord.y;
+
+      double size = 0.5;
+
+      if (x1 > x2 + size || x1 + size < x2 || y1 > y2 + size ||
+          y1 + size < y2) {
+        continue;
+      }
+
+      return character;
+    }
+
+    return null;
   }
 }

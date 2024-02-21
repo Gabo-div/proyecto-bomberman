@@ -1,6 +1,8 @@
 package proyecto.game;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.function.BiFunction;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
@@ -9,10 +11,13 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
+import proyecto.model.AirBlock;
 import proyecto.model.Block;
 import proyecto.model.Bomb;
 import proyecto.model.BrickBlock;
+import proyecto.model.Character;
 import proyecto.model.Coord;
+import proyecto.model.Enemy;
 import proyecto.model.Level;
 import proyecto.model.Sprite;
 import proyecto.model.SpriteSheet;
@@ -82,12 +87,14 @@ public class Renderer {
   }
 
   private void drawOff() {
+    offGc.clearRect(0, 0, canvasWidth, canvasHeight);
     offGc.setFill(Color.web("#00ff48"));
     offGc.fillRect(0, 0, canvasWidth, canvasHeight);
 
     drawBlocks();
-    drawBombs();
     drawPlayer();
+    drawEnemies();
+    drawBombs();
     drawInfo();
 
     if (game.getGameState() == GameState.GAMEOVER) {
@@ -125,83 +132,99 @@ public class Renderer {
     Level level = game.getLevel();
     ArrayList<Bomb> bombs = game.getBombs();
 
+    BiFunction<Integer, Integer, Boolean> explosion =
+        (Integer x, Integer y) -> {
+      Coord<Integer> eCoord = new Coord<>(x, y);
+
+      if (eCoord.x >= level.getWidth() || eCoord.y >= level.getHeight() ||
+          eCoord.y < 0 || eCoord.x < 0) {
+        return true;
+      }
+
+      if (level.getBlock(eCoord) instanceof WallBlock) {
+        return false;
+      }
+
+      if (level.getBlock(eCoord) instanceof AirBlock) {
+        offGc.setFill(Color.ORANGE);
+        offGc.fillRect(eCoord.x, eCoord.y, 1, 1);
+
+        return true;
+      }
+
+      return true;
+    };
+
     for (int i = 0; i < bombs.size(); i++) {
       Bomb bomb = bombs.get(i);
       Coord<Integer> bombCoord = bomb.getCoord();
-
-      offGc.setFill(Color.RED);
-      offGc.fillRect(bombCoord.x, bombCoord.y, 1, 1);
+      int radius = bomb.getRadius();
 
       if (!bomb.exploded()) {
+        offGc.setFill(Color.RED);
+        offGc.fillRect(bombCoord.x, bombCoord.y, 1, 1);
         continue;
       }
 
-      int radius = bomb.getRadius();
-
       offGc.setFill(Color.ORANGE);
-
-      for (int x = 0; x <= radius; x++) {
-
-        if (bombCoord.x + x >= level.getWidth()) {
-          continue;
-        }
-
-        if (level.getBlock(bombCoord.x + x, bombCoord.y) instanceof WallBlock) {
-          break;
-        }
-
-        offGc.fillRect(bombCoord.x + x, bombCoord.y, 1, 1);
-      }
-
-      for (int x = 0; x >= -radius; x--) {
-
-        if (bombCoord.x + x < 0) {
-          continue;
-        }
-
-        if (level.getBlock(bombCoord.x + x, bombCoord.y) instanceof WallBlock) {
-          break;
-        }
-
-        offGc.fillRect(bombCoord.x + x, bombCoord.y, 1, 1);
-      }
-
-      for (int y = 0; y <= radius; y++) {
-
-        if (bombCoord.y + y >= level.getHeight()) {
-          continue;
-        }
-
-        if (level.getBlock(bombCoord.x, bombCoord.y + y) instanceof WallBlock) {
-          break;
-        }
-
-        offGc.fillRect(bombCoord.x, bombCoord.y + y, 1, 1);
-      }
-
-      for (int y = 0; y >= -radius; y--) {
-
-        if (bombCoord.y + y < 0) {
-          continue;
-        }
-
-        if (level.getBlock(bombCoord.x, bombCoord.y + y) instanceof WallBlock) {
-          break;
-        }
-
-        offGc.fillRect(bombCoord.x, bombCoord.y + y, 1, 1);
-      }
-
-      offGc.setFill(Color.RED);
       offGc.fillRect(bombCoord.x, bombCoord.y, 1, 1);
+
+      for (int x = 1; x <= radius; x++) {
+        if (!explosion.apply(bombCoord.x + x, bombCoord.y)) {
+          break;
+        }
+      }
+
+      for (int x = -1; x >= -radius; x--) {
+        if (!explosion.apply(bombCoord.x + x, bombCoord.y)) {
+          break;
+        }
+      }
+
+      for (int y = 1; y <= radius; y++) {
+        if (!explosion.apply(bombCoord.x, bombCoord.y + y)) {
+          break;
+        }
+      }
+
+      for (int y = -1; y >= -radius; y--) {
+        if (!explosion.apply(bombCoord.x, bombCoord.y + y)) {
+          break;
+        }
+      }
     }
   }
 
   private void drawPlayer() {
     Coord<Double> playerCoord = game.getPlayer().getCoord();
+    Boolean invincible = game.getPlayer().isInvincible();
 
+    if (invincible) {
+      offGc.setGlobalAlpha(0.5);
+    }
     offGc.setFill(Color.BLUE);
     offGc.fillRect(playerCoord.x, playerCoord.y, 1, 1);
+
+    offGc.setGlobalAlpha(1);
+  }
+
+  private void drawEnemies() {
+    Level level = game.getLevel();
+    List<Character> characters = level.getCharacters();
+
+    for (Character character : characters) {
+      if (!(character instanceof Enemy)) {
+        continue;
+      }
+
+      if (character.isDead()) {
+        continue;
+      }
+
+      Coord<Double> coord = character.getCoord();
+      offGc.setFill(Color.VIOLET);
+      offGc.fillRect(coord.x, coord.y, 1, 1);
+    }
   }
 
   private void drawInfo() {
@@ -254,7 +277,7 @@ public class Renderer {
                    canvasHeight / 2 - blockSize / 3);
 
     offGc.setFont(new Font("Arial", blockSize / 3));
-    offGc.fillText("Pulsa ENTER para volver", canvasWidth / 2,
+    offGc.fillText("Pulsa ESC para volver", canvasWidth / 2,
                    canvasHeight / 2 + blockSize / 3);
 
     offGc.scale(blockSize, blockSize);

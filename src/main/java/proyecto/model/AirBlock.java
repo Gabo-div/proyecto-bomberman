@@ -3,7 +3,6 @@ package proyecto.model;
 public class AirBlock extends Block {
 
   Entity<Integer> entity;
-
   Coord<Integer> coord;
 
   public AirBlock(Coord<Integer> coord) { this.coord = coord; }
