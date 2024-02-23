@@ -83,7 +83,27 @@ public class Level {
     for (int i = 0; i < brickPositions.size(); i++) {
       int x = brickPositions.get(i) % width;
       int y = brickPositions.get(i) / width;
-      level[y][x] = new BrickBlock(new Coord<>(x, y));
+      Coord<Integer> coord = new Coord<>(x, y);
+      BrickBlock block = new BrickBlock(coord);
+
+      Boolean mustHavePowerUp = Math.random() > 0.75;
+
+      if (mustHavePowerUp) {
+        PowerUpType powerUpType = PowerUpType.random();
+
+        if (powerUpType == PowerUpType.FIREUP) {
+          FireUp fireUp = new FireUp(coord);
+          block.setEntity(fireUp);
+        } else if (powerUpType == PowerUpType.LIFEUP) {
+          LifeUp lifeUp = new LifeUp(coord);
+          block.setEntity(lifeUp);
+        } else if (powerUpType == PowerUpType.BOMBUP) {
+          BombUp bombUp = new BombUp(coord);
+          block.setEntity(bombUp);
+        }
+      }
+
+      level[y][x] = block;
     }
   }
 
@@ -126,6 +146,21 @@ public class Level {
     level[block.getCoord().y][block.getCoord().x] = block;
   }
 
+  public void breakBlock(Coord<Integer> coord) {
+    Block block = level[coord.y][coord.x];
+
+    if (!(block instanceof BrickBlock)) {
+      return;
+    }
+
+    BrickBlock brickBlock = (BrickBlock)block;
+    AirBlock airBlock = new AirBlock(coord);
+
+    airBlock.setEntity(brickBlock.getEntity());
+
+    level[coord.y][coord.x] = airBlock;
+  }
+
   public boolean checkCollisionX(int x, double y) {
     int yFloor = (int)Math.floor(y);
     int yCeil = (int)Math.ceil(y);
@@ -140,14 +175,17 @@ public class Level {
       return true;
     }
 
-    boolean hasFloorEntity = ((AirBlock)blockFloor).hasEntity();
-    boolean hasCeilEntity = ((AirBlock)blockCeil).hasEntity();
+    return false;
+  }
 
-    if (hasFloorEntity || hasCeilEntity) {
-      return true;
+  public Entity<Integer> checkEntityCollision(int x, int y) {
+    Block block = getBlock(x, y);
+
+    if (!(block instanceof AirBlock)) {
+      return null;
     }
 
-    return false;
+    return ((AirBlock)block).getEntity();
   }
 
   public boolean checkCollisionY(double x, int y) {
@@ -161,13 +199,6 @@ public class Level {
     boolean isCeilAir = blockCeil instanceof AirBlock;
 
     if (!isFloorAir || !isCeilAir) {
-      return true;
-    }
-
-    boolean hasFloorEntity = ((AirBlock)blockFloor).hasEntity();
-    boolean hasCeilEntity = ((AirBlock)blockCeil).hasEntity();
-
-    if (hasFloorEntity || hasCeilEntity) {
       return true;
     }
 

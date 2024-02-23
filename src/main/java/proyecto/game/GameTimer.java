@@ -34,9 +34,9 @@ public abstract class GameTimer extends AnimationTimer {
 
     media = (max + min) / 2;
 
-    System.out.println("DELTA: " + deltaMs + " | MAX: " + max +
-                       " | MIN: " + min + " | MEDIA: " + media);
-
+    // System.out.println("DELTA: " + deltaMs + " | MAX: " + max +
+    // " | MIN: " + min + " | MEDIA: " + media);
+    //
     tick(deltaMs);
   }
 

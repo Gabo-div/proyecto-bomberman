@@ -22,7 +22,7 @@ public class SingleplayerGame {
   private SingleplayerGame() {
     spriteSheet = SpriteSheet.getInstance();
     Coord<Double> playerCoord = new Coord<>(1.0, 1.0);
-    player = new Player(playerCoord, 3, 2);
+    player = new Player(playerCoord, 3, 1);
     player.setBombType(BombType.BASIC);
     bombs = new ArrayList<Bomb>();
 
@@ -113,6 +113,21 @@ public class SingleplayerGame {
       player.makeInvincibleUntil(ticksCount + invincibilityTicks);
     }
 
+    Integer newCoordY = (int)Math.round(newCoord.y);
+    Entity<Integer> collidedEntityX =
+        level.checkEntityCollision((int)x, newCoordY);
+
+    if (collidedEntityX instanceof Bomb) {
+      newCoord.x = playerCoord.x;
+    }
+
+    if (collidedEntityX instanceof PowerUp) {
+      AirBlock entityBlock = (AirBlock)level.getBlock((int)x, newCoordY);
+      entityBlock.setEntity(null);
+
+      ((PowerUp)collidedEntityX).activate(player);
+    }
+
     if (!level.checkCollisionY(newCoord.x, (int)y)) {
       newCoord.y = newY;
     }
@@ -123,6 +138,21 @@ public class SingleplayerGame {
       player.setLifes(player.getLifes() - 1);
       Integer invincibilityTicks = GameConstants.secondsToTicks(2);
       player.makeInvincibleUntil(ticksCount + invincibilityTicks);
+    }
+
+    Integer newCoordX = (int)Math.round(newCoord.x);
+
+    Entity<Integer> collidedEntityY =
+        level.checkEntityCollision(newCoordX, (int)y);
+
+    if (collidedEntityY instanceof Bomb) {
+      newCoord.y = playerCoord.y;
+    }
+
+    if (collidedEntityY instanceof PowerUp) {
+      AirBlock entityBlock = (AirBlock)level.getBlock(newCoordX, (int)y);
+      entityBlock.setEntity(null);
+      ((PowerUp)collidedEntityY).activate(player);
     }
 
     player.setCoord(newCoord);
@@ -151,9 +181,15 @@ public class SingleplayerGame {
         Double newX = newCoord.x + speedX;
         double x = speedX > 0 ? Math.ceil(newX) : Math.floor(newX);
 
-        if (level.checkCollisionX((int)x, newCoord.y)) {
+        Integer newCoordY = (int)Math.round(newCoord.y);
+        Entity<Integer> collidedEntityX =
+            level.checkEntityCollision((int)x, newCoordY);
+
+        if (level.checkCollisionX((int)x, newCoord.y) ||
+            collidedEntityX instanceof Bomb) {
           Direction newDirection = direction.getOpposite();
           character.setDirection(newDirection);
+          continue;
         } else {
           newCoord.x = newX;
           character.setCoord(newCoord);
@@ -166,7 +202,12 @@ public class SingleplayerGame {
         Double newY = newCoord.y + speedY;
         double y = speedY > 0 ? Math.ceil(newY) : Math.floor(newY);
 
-        if (level.checkCollisionY(newCoord.x, (int)y)) {
+        Integer newCoordX = (int)Math.round(newCoord.x);
+        Entity<Integer> collidedEntityY =
+            level.checkEntityCollision(newCoordX, (int)y);
+
+        if (level.checkCollisionY(newCoord.x, (int)y) ||
+            collidedEntityY instanceof Bomb) {
           Direction newDirection = direction.getOpposite();
           character.setDirection(newDirection);
         } else {
@@ -240,7 +281,7 @@ public class SingleplayerGame {
     for (int i = 0; i < bombs.size(); i++) {
       Bomb bomb = bombs.get(i);
 
-      int removeBombsTicks = GameConstants.secondsToTicks(1);
+      int removeBombsTicks = GameConstants.secondsToTicks(0.5);
       int removeTick = bomb.getExplosionTick() + removeBombsTicks;
 
       if (!bomb.exploded() && ticksCount >= bomb.getExplosionTick()) {

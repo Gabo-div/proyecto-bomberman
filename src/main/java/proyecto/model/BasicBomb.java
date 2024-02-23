@@ -54,7 +54,8 @@ public class BasicBomb extends Bomb {
       }
 
       if (block instanceof AirBlock) {
-        Entity<Integer> entity = ((AirBlock)block).getEntity();
+        AirBlock airBlock = (AirBlock)block;
+        Entity<Integer> entity = airBlock.getEntity();
 
         if (entity instanceof Bomb) {
           Bomb bomb = (Bomb)entity;
@@ -65,10 +66,14 @@ public class BasicBomb extends Bomb {
 
           bomb.setExplosionTick(explosionTick);
         }
+
+        if (entity instanceof PowerUp) {
+          airBlock.setEntity(null);
+        }
       }
 
       if (block instanceof BrickBlock) {
-        level.setBlock(new AirBlock(eCoord));
+        level.breakBlock(eCoord);
       }
 
       return true;
