@@ -300,7 +300,18 @@ public class SingleplayerGame {
       return;
     }
 
-    if (level.getCharacters().size() <= 1) {
+    boolean allEnemiesDead = true;
+    for (Character enemy : level.getCharacters()) {
+      if (!(enemy instanceof Enemy)) {
+        continue;
+      }
+      if (!enemy.isDead()) {
+        allEnemiesDead = false;
+        break;
+      }
+    }
+
+    if (allEnemiesDead) {
       gameState = GameState.WIN;
       return;
     }

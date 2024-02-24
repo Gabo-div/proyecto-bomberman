@@ -470,7 +470,7 @@ public class Renderer {
     offGc.setTextAlign(TextAlignment.CENTER);
 
     offGc.setFont(new Font("Bomberman", blockSize));
-    offGc.fillText("Game Over", canvasWidth / 2,
+    offGc.fillText("Perdiste", canvasWidth / 2,
                    canvasHeight / 2 - blockSize / 3);
 
     offGc.setFont(new Font("Bomberman", blockSize / 3));
