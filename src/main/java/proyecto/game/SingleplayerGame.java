@@ -18,6 +18,7 @@ public class SingleplayerGame {
   private int ticksCount = 0;
   private double currentTimeMs = 0;
   private KeyHandler keyHandler = KeyHandler.getInstance();
+  private Integer countDownMs = 0;
 
   private SingleplayerGame() {
     spriteSheet = SpriteSheet.getInstance();
@@ -25,7 +26,7 @@ public class SingleplayerGame {
     player = new Player(playerCoord, 3, 1);
     player.setBombType(BombType.BASIC);
     bombs = new ArrayList<Bomb>();
-
+    countDownMs = 120 * 1000;
     level = new Level(15, 13, player);
   }
 
@@ -47,6 +48,8 @@ public class SingleplayerGame {
 
   public void end() { instance = null; }
 
+  public Integer getCountDownMs() { return countDownMs; }
+
   public GameState getGameState() { return gameState; }
 
   public void setGameState(GameState gameState) { this.gameState = gameState; }
@@ -60,9 +63,29 @@ public class SingleplayerGame {
   public ArrayList<Bomb> getBombs() { return bombs; }
 
   public void movePlayer() {
+
     Coord<Double> playerCoord = player.getCoord();
     Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
     double speed = player.getSpeed();
+
+    if (!(keyHandler.isDown(KeyCode.A) || keyHandler.isDown(KeyCode.D) ||
+          keyHandler.isDown(KeyCode.W) || keyHandler.isDown(KeyCode.S))) {
+      player.setDirectionStateCounter(0);
+      player.setDirectionState(1);
+    }
+
+    if (player.getDirectionStateCounter() >= 10) {
+      int directionState = player.getDirectionState();
+
+      if (directionState < 3) {
+        player.setDirectionState(directionState + 1);
+      } else {
+        player.setDirectionState(1);
+      }
+
+      player.setDirectionStateCounter(0);
+    }
+    player.setDirectionStateCounter(player.getDirectionStateCounter() + 1);
 
     double movementStateX = 0;
     double movementStateY = 0;
@@ -168,6 +191,20 @@ public class SingleplayerGame {
         continue;
       }
 
+      if (character.getDirectionStateCounter() >= 10) {
+        int directionState = character.getDirectionState();
+
+        if (directionState < 4) {
+          character.setDirectionState(directionState + 1);
+        } else {
+          character.setDirectionState(1);
+        }
+
+        character.setDirectionStateCounter(0);
+      }
+      character.setDirectionStateCounter(character.getDirectionStateCounter() +
+                                         1);
+
       Direction direction = character.getDirection();
       Double speed = character.getSpeed();
       Coord<Double> characterCoord = character.getCoord();
@@ -220,7 +257,12 @@ public class SingleplayerGame {
 
   public void addBomb() {
     Coord<Double> playerCoord = player.getCoord();
-    Integer playerFirepower = player.getFirepower();
+    Integer availableBombs = player.getAvailableBombs();
+
+    if (availableBombs <= 0) {
+      return;
+    }
+
     Coord<Integer> bombCoord = Coord.round(playerCoord);
 
     Block block = level.getBlock(bombCoord);
@@ -235,7 +277,7 @@ public class SingleplayerGame {
       return;
     }
 
-    Bomb newBomb = new BasicBomb(bombCoord, playerFirepower);
+    Bomb newBomb = new BasicBomb(bombCoord, player);
 
     // if (bombType == BombType.BASIC) {
     // newBomb = new BasicBomb(coords);
@@ -245,6 +287,7 @@ public class SingleplayerGame {
     newBomb.setExplosionTick(ticksCount + bombDelay);
     bombs.add(newBomb);
     airBlock.setEntity(newBomb);
+    player.setAvailableBombs(availableBombs - 1);
   }
 
   public void loop(double deltaMs) {
@@ -252,11 +295,17 @@ public class SingleplayerGame {
       return;
     }
 
-    if (player.isDead()) {
+    if (player.isDead() || countDownMs <= 0) {
       gameState = GameState.GAMEOVER;
       return;
     }
 
+    if (level.getCharacters().size() <= 1) {
+      gameState = GameState.WIN;
+      return;
+    }
+
+    countDownMs -= (int)Math.round(deltaMs);
     calculateTick(deltaMs);
     handleInvencibility();
     movePlayer();

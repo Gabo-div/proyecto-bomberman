@@ -7,8 +7,8 @@ import proyecto.game.GameConstants;
 public class BasicBomb extends Bomb {
   private int explosionDelaySeconds = 3;
 
-  public BasicBomb(Coord<Integer> coord, int firepower) {
-    super(coord, firepower);
+  public BasicBomb(Coord<Integer> coord, Player player) {
+    super(coord, player);
   }
 
   @Override
@@ -19,6 +19,8 @@ public class BasicBomb extends Bomb {
   @Override
   public void explode(Level level) {
     exploded = true;
+    player.setAvailableBombs(player.getAvailableBombs() + 1);
+
     List<Character> characters = level.getCharacters();
 
     BiFunction<Integer, Integer, Boolean> explosion =
@@ -80,6 +82,8 @@ public class BasicBomb extends Bomb {
     };
 
     explosion.apply(0, 0);
+
+    int firepower = player.getFirepower();
 
     for (int x = 1; x <= firepower; x++) {
       if (!explosion.apply(x, 0)) {

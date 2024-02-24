@@ -5,5 +5,7 @@ public class BombUp extends PowerUp {
   public BombUp(Coord<Integer> coord) { super(coord); }
 
   @Override
-  public void activate(Player player) {}
+  public void activate(Player player) {
+    player.setAvailableBombs(player.getAvailableBombs() + 1);
+  }
 }

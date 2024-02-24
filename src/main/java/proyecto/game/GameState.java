@@ -1,3 +1,3 @@
 package proyecto.game;
 
-public enum GameState { RUNNING, PAUSED, GAMEOVER }
+public enum GameState { RUNNING, PAUSED, GAMEOVER, WIN }

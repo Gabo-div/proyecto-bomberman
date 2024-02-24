@@ -5,6 +5,8 @@ public abstract class Character extends Entity<Double> {
   protected int lifes;
   protected Double speed;
   protected Direction direction;
+  protected Integer directionState = 1;
+  protected Integer directionStateCounter = 0;
   protected Boolean invincible = false;
   protected Integer invincibilityTicks = 0;
 
@@ -36,11 +38,23 @@ public abstract class Character extends Entity<Double> {
 
   public void setDirection(Direction direction) { this.direction = direction; }
 
+  public Integer getDirectionState() { return directionState; }
+
+  public void setDirectionState(Integer directionState) {
+    this.directionState = directionState;
+  }
+
+  public Integer getDirectionStateCounter() { return directionStateCounter; }
+
+  public void setDirectionStateCounter(Integer directionStateCounter) {
+    this.directionStateCounter = directionStateCounter;
+  }
+
   public void setCoord(Coord<Double> coord) { this.coord = coord; };
 
   public void setLifes(int lifes) { this.lifes = lifes; };
 
-  public int getLifes() { return this.lifes; };
+  public Integer getLifes() { return this.lifes; };
 
   public boolean isDead() { return this.lifes <= 0; };
 

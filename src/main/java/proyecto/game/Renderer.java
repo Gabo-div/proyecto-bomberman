@@ -18,11 +18,13 @@ import proyecto.model.BombUp;
 import proyecto.model.BrickBlock;
 import proyecto.model.Character;
 import proyecto.model.Coord;
+import proyecto.model.Direction;
 import proyecto.model.Enemy;
 import proyecto.model.Entity;
 import proyecto.model.FireUp;
 import proyecto.model.Level;
 import proyecto.model.LifeUp;
+import proyecto.model.Player;
 import proyecto.model.PowerUp;
 import proyecto.model.Sprite;
 import proyecto.model.SpriteSheet;
@@ -84,6 +86,7 @@ public class Renderer {
       offGc.setTransform(defaultTransform);
     }
 
+    offGc.setTransform(defaultTransform);
     offGc.scale(blockSize, blockSize);
   }
 
@@ -99,9 +102,9 @@ public class Renderer {
     offGc.save();
     offGc.translate(gap / 2, gap);
     drawBlocks();
-    drawPlayer();
-    drawEnemies();
     drawBombs();
+    drawEnemies();
+    drawPlayer();
 
     offGc.restore();
     drawGap();
@@ -113,6 +116,10 @@ public class Renderer {
 
     if (game.getGameState() == GameState.PAUSED) {
       drawPaused();
+    }
+
+    if (game.getGameState() == GameState.WIN) {
+      drawWin();
     }
   }
 
@@ -335,14 +342,23 @@ public class Renderer {
   }
 
   private void drawPlayer() {
-    Coord<Double> playerCoord = game.getPlayer().getCoord();
-    Boolean invincible = game.getPlayer().isInvincible();
+    Player player = game.getPlayer();
+    Coord<Double> playerCoord = player.getCoord();
+    Boolean invincible = player.isInvincible();
+    Direction direction = player.getDirection();
+    Integer directionState = player.getDirectionState();
+    String directionStr = direction.toString().toLowerCase();
+
+    // SPRITENAME : COLOR_DIRECTION_NUMBER
+    String spriteName = "white_" + directionStr + "_" + directionState;
+    Sprite playerSprite = spriteSheet.getSprite(spriteName);
+    Image playerImage = playerSprite.getImage();
 
     if (invincible) {
       offGc.setGlobalAlpha(0.5);
     }
-    offGc.setFill(Color.BLUE);
-    offGc.fillRect(playerCoord.x, playerCoord.y, 1, 1);
+
+    offGc.drawImage(playerImage, playerCoord.x, playerCoord.y - 0.5, 1, 1.5);
 
     offGc.setGlobalAlpha(1);
   }
@@ -360,9 +376,16 @@ public class Renderer {
         continue;
       }
 
-      Coord<Double> coord = character.getCoord();
-      offGc.setFill(Color.VIOLET);
-      offGc.fillRect(coord.x, coord.y, 1, 1);
+      Enemy enemy = (Enemy)character;
+      Direction direction = enemy.getDirection();
+      String directionStr = direction.toString().toLowerCase();
+      Integer directionState = enemy.getDirectionState();
+      Coord<Double> coord = enemy.getCoord();
+
+      String spriteName = "enemy_" + directionStr + "_" + directionState;
+      Sprite enemySprite = spriteSheet.getSprite(spriteName);
+
+      offGc.drawImage(enemySprite.getImage(), coord.x, coord.y - 0.5, 1, 1.5);
     }
   }
 
@@ -399,32 +422,38 @@ public class Renderer {
   }
 
   private void drawInfo() {
+    Sprite playerFaceSprite = spriteSheet.getSprite("white_face");
+    Sprite clockSprite = spriteSheet.getSprite("clock");
+
     offGc.setTransform(defaultTransform);
 
-    double infoHeight = blockSize * gap;
+    // background
     offGc.setFill(Color.ORANGE);
-    offGc.fillRect(0, 0, canvasWidth, infoHeight);
-
-    // Info
-    double fontSize = infoHeight / 1.25;
-    double rectHeight = fontSize + 5;
-    double rectWidth = fontSize;
-    double rectY = (infoHeight - rectHeight) / 2;
-    double rectX = blockSize;
-    offGc.setFill(Color.BLACK);
-    offGc.fillRect(rectX, rectY, rectWidth, rectHeight);
-
-    // Lifes
-    double lifeX = rectX + (rectWidth / 2);
-    double lifeY = rectY + (rectHeight / 2) + (fontSize / 3);
-    Integer lifes = game.getPlayer().getLifes();
-
-    offGc.setFill(Color.WHITE);
-    offGc.setFont(new Font("Arial", fontSize));
-    offGc.setTextAlign(TextAlignment.CENTER);
-    offGc.fillText(lifes.toString(), lifeX, lifeY);
+    offGc.fillRect(0, 0, canvasWidth, blockSize * 2);
 
     offGc.scale(blockSize, blockSize);
+    offGc.setTextAlign(TextAlignment.CENTER);
+    offGc.setFont(new Font("Bomberman", 1));
+    double infoCenter = 0.5;
+
+    // lifes
+    offGc.drawImage(playerFaceSprite.getImage(), 1, infoCenter, 1, 1);
+
+    String lifesStr = game.getPlayer().getLifes().toString();
+    offGc.setFill(Color.BLACK);
+    offGc.fillRect(2, infoCenter, 1, 1);
+    offGc.setFill(Color.WHITE);
+    offGc.fillText(lifesStr, 2.5, infoCenter + 0.85, 1);
+
+    // time
+    offGc.drawImage(clockSprite.getImage(), 4, infoCenter, 1, 1);
+
+    Integer countDownSeconds = game.getCountDownMs() / 1000;
+    String secondsStr = countDownSeconds.toString();
+    offGc.setFill(Color.BLACK);
+    offGc.fillRect(5, infoCenter, 3, 1);
+    offGc.setFill(Color.WHITE);
+    offGc.fillText(secondsStr, 6.5, infoCenter + 0.85, 3);
   }
 
   private void drawGameOver() {
@@ -440,11 +469,34 @@ public class Renderer {
     offGc.setFill(Color.WHITE);
     offGc.setTextAlign(TextAlignment.CENTER);
 
-    offGc.setFont(new Font("Arial", blockSize));
+    offGc.setFont(new Font("Bomberman", blockSize));
     offGc.fillText("Game Over", canvasWidth / 2,
                    canvasHeight / 2 - blockSize / 3);
 
-    offGc.setFont(new Font("Arial", blockSize / 3));
+    offGc.setFont(new Font("Bomberman", blockSize / 3));
+    offGc.fillText("Pulsa ESC para volver", canvasWidth / 2,
+                   canvasHeight / 2 + blockSize / 3);
+
+    offGc.scale(blockSize, blockSize);
+  }
+
+  private void drawWin() {
+    offGc.setTransform(defaultTransform);
+
+    offGc.setGlobalAlpha(0.75);
+    offGc.setFill(Color.web("#000000"));
+    offGc.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    offGc.setGlobalAlpha(1);
+
+    offGc.setFill(Color.WHITE);
+    offGc.setTextAlign(TextAlignment.CENTER);
+
+    offGc.setFont(new Font("Bomberman", blockSize));
+    offGc.fillText("Ganaste", canvasWidth / 2,
+                   canvasHeight / 2 - blockSize / 3);
+
+    offGc.setFont(new Font("Bomberman", blockSize / 3));
     offGc.fillText("Pulsa ESC para volver", canvasWidth / 2,
                    canvasHeight / 2 + blockSize / 3);
 
@@ -463,10 +515,10 @@ public class Renderer {
     offGc.setFill(Color.WHITE);
     offGc.setTextAlign(TextAlignment.CENTER);
 
-    offGc.setFont(new Font("Arial", blockSize));
+    offGc.setFont(new Font("Bomberman", blockSize));
     offGc.fillText("Pausa", canvasWidth / 2, canvasHeight / 2 - blockSize / 3);
 
-    offGc.setFont(new Font("Arial", blockSize / 3));
+    offGc.setFont(new Font("Bomberman", blockSize / 3));
     offGc.fillText("Pulsa ESC para reanudar", canvasWidth / 2,
                    canvasHeight / 2 + blockSize / 3);
 

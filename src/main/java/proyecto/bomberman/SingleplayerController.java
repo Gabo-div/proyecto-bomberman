@@ -55,7 +55,7 @@ public class SingleplayerController implements Initializable {
     keyHandler.onPressed(KeyCode.ESCAPE, () -> {
       GameState gameState = game.getGameState();
 
-      if (gameState == GameState.GAMEOVER) {
+      if (gameState == GameState.GAMEOVER || gameState == GameState.WIN) {
         try {
           gameTimer.stop();
           game.end();

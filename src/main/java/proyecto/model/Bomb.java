@@ -5,11 +5,11 @@ public abstract class Bomb extends Entity<Integer> {
   protected Coord<Integer> coord;
   protected boolean exploded = false;
   protected int explosionTick = 0;
-  protected int firepower;
+  protected Player player;
 
-  public Bomb(Coord<Integer> coord, int firepower) {
+  public Bomb(Coord<Integer> coord, Player player) {
     this.coord = coord;
-    this.firepower = firepower;
+    this.player = player;
   }
 
   @Override
@@ -25,7 +25,7 @@ public abstract class Bomb extends Entity<Integer> {
     this.explosionTick = explosionTick;
   }
 
-  public int getRadius() { return firepower; }
+  public int getRadius() { return player.getFirepower(); }
 
   public abstract void explode(Level level);
 
