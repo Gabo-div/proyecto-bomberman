@@ -1,5 +1,7 @@
 package proyecto.bomberman;
 
+import Multiplayer.Client;
+import Multiplayer.Server;
 import java.io.IOException;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -9,16 +11,9 @@ import javafx.scene.image.Image;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-
-import java.io.IOException;
-import Multiplayer.Client;
-import Multiplayer.Server;
-
-
-
 /**
  * JavaFX App
- * 
+ *
  */
 
 public class App extends Application {
@@ -28,14 +23,14 @@ public class App extends Application {
   @Override
   public void start(Stage stage) throws IOException {
 
-    scene = new Scene(loadFXML("primary"), 640, 480, Color.AQUAMARINE);
+    scene = new Scene(loadFXML("primary"), 800, 600, Color.AQUAMARINE);
     Image icon =
         new Image(getClass().getResourceAsStream("/Bomberman-icon.png"));
     stage.setTitle("Don Pepe and His Balloons");
     stage.getIcons().add(icon);
     stage.setScene(scene);
 
-    stage.setResizable(false);
+    stage.setResizable(true);
     stage.show();
   }
 
