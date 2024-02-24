@@ -55,6 +55,10 @@ public class Level {
         continue;
       }
 
+      if (enemyX == playerCoord.x || enemyY == playerCoord.y) {
+        continue;
+      }
+
       Direction direction = Direction.random();
 
       if (level[enemyY - 1][enemyX] instanceof WallBlock &&
