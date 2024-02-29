@@ -1,0 +1,23 @@
+@import "font.css";
+
+.button {
+  -fx-font-family: 'Bomberman';
+  -fx-font-size: 30px;
+  -fx-text-fill: linear-gradient(to bottom, #ee3800 0%, #ffff31 50%, #ee3800 100%);
+  -fx-background-color: transparent;
+  -fx-border-width: 3px;
+  -fx-border-color: transparent;
+  -fx-border-radius: 10px;
+  -fx-padding: 5px 20px 5px 20px;
+}
+
+.button:hover,
+.button:focused {
+  -fx-border-color: #ffff31;
+}
+
+
+.label {
+  -fx-font-size: 20px;
+  -fx-text-fill: white;
+}

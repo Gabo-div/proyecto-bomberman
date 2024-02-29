@@ -1,22 +1,19 @@
 package proyecto.bomberman;
 
-import Multiplayer.Client;
-import Multiplayer.Server;
 import java.io.IOException;
 import javafx.application.Application;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
-/**
- * JavaFX App
- *
- */
-
 public class App extends Application {
+
+  @FXML private VBox box;
 
   private static Scene scene;
 
@@ -47,4 +44,6 @@ public class App extends Application {
   public static void main(String[] args) { launch(); }
 
   public static Scene getScene() { return scene; }
+
+  public static Stage getStage() { return (Stage)scene.getWindow(); }
 }

@@ -43,12 +43,6 @@ public class SwitchController {
   }
 
   @FXML
-  private void SwitchToCreateParty() throws IOException {
-
-    App.setRoot("lobbyroom");
-  }
-
-  @FXML
   private void switchToJoinLobby() throws IOException {
 
     App.setRoot("Joinlobby");

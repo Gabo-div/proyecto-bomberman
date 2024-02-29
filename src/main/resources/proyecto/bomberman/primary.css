@@ -1,0 +1,26 @@
+@import "../../font.css";
+@import "../../global.css";
+
+#box {
+  -fx-background-color: black;
+  -fx-alignment: center;
+  -fx-font-family: 'Bomberman';
+}
+
+#content {
+  -fx-alignment: center;
+  -fx-max-width: 500px;
+}
+
+#title {
+  -fx-font-size: 60px;
+  -fx-text-fill: linear-gradient(to bottom, #ee3800 0%, #ffff31 50%, #ee3800 100%);
+  -fx-text-alignment: center;
+  -fx-wrap-text: true;
+}
+
+#buttons {
+  -fx-padding: 50px 0px 0px 0px;
+  -fx-alignment: center;
+  -fx-spacing: 10px;
+}
