@@ -1,6 +1,6 @@
 module proyecto.bomberman {
   requires javafx.controls;
-  requires javafx.fxml;
+  requires transitive javafx.fxml;
   requires transitive javafx.graphics;
   requires javafx.base;
 

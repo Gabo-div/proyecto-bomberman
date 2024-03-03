@@ -1,25 +1,6 @@
 @import "../../font.css";
 @import "../../global.css";
 
-
-#box {
-  -fx-background-image: url("./startMenuBomberman.png");
-  -fx-background-repat: no-repeat;
-  -fx-background-size: cover;
-  -fx-background-position: center;
-  -fx-font-family: 'Bomberman';
-  
-}
-
-
-#column {
- -fx-background-color: rgba(0, 0, 0, 0.7);
-  
-  -fx-max-width: 500.0;
-  -fx-pref-height: 10000;
-  -fx-alignment: center;
-}
-
 #content {
   -fx-alignment: center;
   -fx-max-width: 500px;

@@ -2,50 +2,47 @@
 @import "../../global.css";
 
 #box {
-    -fx-background-image: url("./startMenuBomberman.png");
-    -fx-background-repat: no-repeat;
-    -fx-background-size: cover;
-    -fx-alignment: right;
+  -fx-alignment: right;
 }
 
-#room{
-    -fx-background-color: rgb(0, 0, 0,0.7);
-    -fx-pref-width: 2000;
-    -fx-pref-height: 2000;
+#room {
+  -fx-background-color: rgb(0, 0, 0, 0.7);
+  -fx-pref-width: 2000;
+  -fx-pref-height: 2000;
 }
 
-#chat{
-    -fx-min-width: 300.0;
-    -fx-pref-width: 300.0;
-    -fx-max-width: 300.0;
-    -fx-max-height: 500.0;
-    -fx-pref-height: 500.0;
-    -fx-min-height: 500.0;
-    -fx-alignment: center;
+#chat {
+  -fx-min-width: 300.0;
+  -fx-pref-width: 300.0;
+  -fx-max-width: 300.0;
+  -fx-max-height: 500.0;
+  -fx-pref-height: 500.0;
+  -fx-min-height: 500.0;
+  -fx-alignment: center;
 }
 
 
-#sp_main{
-    -fx-pref-height: 600.0;
-    -fx-pref-width: 300.0;
+#sp_main {
+  -fx-pref-height: 600.0;
+  -fx-pref-width: 300.0;
 }
 
-#vbox_messages{
-    
-    -fx-pref-height: 300.0;
-    -fx-pref-width: 270.0;
+#vbox_messages {
+
+  -fx-pref-height: 300.0;
+  -fx-pref-width: 270.0;
 }
 
-#tf_message{
-    -fx-background-color: rgb(161, 137, 147);
-    -fx-pref-height: 26.0;
-    -fx-pref-width: 146.0;
+#tf_message {
+  -fx-background-color: rgb(161, 137, 147);
+  -fx-pref-height: 26.0;
+  -fx-pref-width: 146.0;
 
 }
 
-#button_send{
-    -fx-background-color: rgb(59, 16, 32);
-    -fx-alignment: center;
-    -fx-pref-width: 300.0;
-    -fx-font-size: 20px;
+#button_send {
+  -fx-background-color: rgb(59, 16, 32);
+  -fx-alignment: center;
+  -fx-pref-width: 300.0;
+  -fx-font-size: 20px;
 }
