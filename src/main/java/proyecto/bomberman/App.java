@@ -7,6 +7,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -20,12 +22,16 @@ public class App extends Application {
   @Override
   public void start(Stage stage) throws IOException {
 
-    scene = new Scene(loadFXML("primary"), 800, 600, Color.AQUAMARINE);
+    scene = new Scene(loadFXML("primary"), 1280, 720);
     Image icon =
         new Image(getClass().getResourceAsStream("/Bomberman-icon.png"));
+   
     stage.setTitle("Don Pepe and His Balloons");
     stage.getIcons().add(icon);
     stage.setScene(scene);
+    
+    
+	  StackPane root = new StackPane();
 
     stage.setResizable(true);
     stage.show();

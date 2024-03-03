@@ -30,6 +30,10 @@ import javafx.event.EventHandler;
 //Clase que coordina quien envía y recibe mensajes
 public class playersController implements Initializable{
 
+    @FXML private VBox box;
+    @FXML private VBox chat;
+    @FXML private VBox room;
+
     @FXML
     private Button button_send;
 
@@ -53,6 +57,13 @@ public class playersController implements Initializable{
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         
+        URL cssURL = App.class.getResource("joinlobby.css");
+        String urlString = cssURL.toString();
+        box.getStylesheets().add(urlString);
+        box.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        room.setAlignment(javafx.geometry.Pos.CENTER_RIGHT);
+        
+
         try {
         	
             this.client = new Client(new Socket("localhost", 5000));
@@ -84,7 +95,7 @@ public class playersController implements Initializable{
                 String messageToSend = tf_message.getText();
                 if (!messageToSend.isEmpty()){
                     HBox hbox = new HBox();
-                    hbox.setAlignment(Pos.CENTER_RIGHT);
+                    hbox.setAlignment(Pos.TOP_RIGHT);
                     hbox.setPadding(new Insets(5,5,5,10));
 
                     Text text = new Text(messageToSend);
@@ -114,7 +125,7 @@ public class playersController implements Initializable{
     public static void addLabel(String messageFromServer, VBox vbox){
 
         HBox hbox = new HBox();
-        hbox.setAlignment(Pos.CENTER_LEFT);
+        hbox.setAlignment(Pos.TOP_LEFT);
         hbox.setPadding(new Insets(5,5,5,10));
 
         Text text = new Text(messageFromServer);
