@@ -27,6 +27,16 @@ public class PrimaryController implements Initializable {
   }
 
   @FXML
+  private void switchToHelp() throws IOException {
+    App.setRoot("help");
+  }
+
+  @FXML
+  private void switchToAbout() throws IOException {
+    App.setRoot("about");
+  }
+
+  @FXML
   public void Exit() {
     App.getStage().close();
     System.exit(0);
