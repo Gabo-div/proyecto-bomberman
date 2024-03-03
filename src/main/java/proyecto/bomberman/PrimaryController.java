@@ -5,15 +5,21 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.SVGPath;
 
 public class PrimaryController implements Initializable {
   @FXML private VBox box;
 
+  @FXML private VBox column;
+
   @Override
   public void initialize(URL url, ResourceBundle rb) {
+
     URL cssURL = App.class.getResource("primary.css");
     String urlString = cssURL.toString();
-    box.getStylesheets().add(urlString);
+    box.getStylesheets().add(urlString);   
+   
+    
   }
 
   @FXML

@@ -2,14 +2,18 @@
 @import "../../global.css";
 
 #box {
+  -fx-background-image: url("./startMenuBomberman.png");
+  -fx-background-repat: no-repeat;
+  -fx-background-size: cover;
   -fx-font-family: 'Bomberman';
-  -fx-alignment: center;
-  -fx-background-color: black;
+  
 }
 
 #content {
+  -fx-background-color: rgba(0,0,0,0.6);
   -fx-alignment: center;
   -fx-max-width: 500px;
+  -fx-pref-height: 10000;
   -fx-spacing: 10px;
 }
 

@@ -4,7 +4,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
 
-<VBox fx:id="box" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller=""proyecto.bomberman.HostLobbyRoomController">
-    <Label fx:id="nicknameLabel"/>
-    <Label fx:id="roomSizeLabel"/>
+<VBox fx:id="box" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.HostLobbyRoomController">
+    <VBox fx:id = "column">
+        <Label fx:id="nicknameLabel"/>
+        <Label fx:id="roomSizeLabel"/>
+        <TextField fx:id = "nicknameField">
+        <ChoiceBox "roomSizeChoice">
+    </VBox>
 </VBox>

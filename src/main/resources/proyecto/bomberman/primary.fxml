@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox fx:id="box" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.PrimaryController">
+<VBox fx:id ="column">
   <VBox fx:id="content">
      <Label fx:id="title" text="Don Pepe y sus globos"/>
      <VBox fx:id="buttons">
@@ -12,5 +13,6 @@
        <Button fx:id="multiplayer" onAction="#switchToMultiplayer" text="Multiplayer"/>
        <Button fx:id="exit" onAction="#Exit" text="Exit"/>
      </VBox>
+  </VBox>
   </VBox>
 </VBox>
