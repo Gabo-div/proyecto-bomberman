@@ -1,5 +1,6 @@
 package proyecto.bomberman;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.*;
@@ -14,6 +15,12 @@ public class HelpController implements Initializable {
       String urlString = cssURL.toString();
       box.getStylesheets().add(urlString);
     }
+
+    @FXML
+  private void switchToPrimary() throws IOException {
+    App.setRoot("primary");
+  }
+
   
     @FXML
     public void Exit() {

@@ -24,11 +24,16 @@ public class HostPartyController implements Initializable {
   }
 
   @FXML
-  private void SwitchToCreateParty() throws IOException {
-    System.out.println("NICKNAME: " + nicknameField.getText());
-    System.out.println("ROOMSIZE: " + roomSizeChoice.getValue());
-
+  private void createParty() throws IOException {
     App.setRoot("hostLobbyRoom");
+    Initializable controller = App.getCurrentController();
+
+    if (controller instanceof HostLobbyRoomController) {
+      ((HostLobbyRoomController)controller)
+          .setNickname(nicknameField.getText());
+      ((HostLobbyRoomController)controller)
+          .setRoomSize(roomSizeChoice.getValue());
+    }
   }
 
   @FXML

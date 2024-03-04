@@ -1,20 +1,34 @@
 @import "../../font.css";
 @import "../../global.css";
 
-#box {
-    -fx-background-color: black;
-    -fx-alignment: center;
-    -fx-font-family: 'Bomberman';
-}
-
 #title {
     -fx-font-size: 60px;
     -fx-text-fill: linear-gradient(to bottom, #ee3800 0%, #ffff31 50%, #ee3800 100%);
     -fx-text-alignment: center;
-    -fx-wrap-text: true;
+    
+    
 }
   
 #text {
-    -fx-font-size: 15px;
-    -fx-text-alignment: left;
+    -fx-font-size: 18px;
+    -fx-text-fill: linear-gradient(to bottom, #ffffff 0%, #ffffff 50%, #ffffff 100%);
+    -fx-text-alignment: justify;
+    -fx-wrap-text: true;
+    -fx-text-weight: 30px;
+    font-family: monospace;
 }
+
+#buttons {
+    -fx-padding: 50px 0px 0px 0px;
+    -fx-alignment: center;
+    -fx-spacing: 10px;
+  }
+
+  #columnMiddle {
+    -fx-background-color: rgba(0, 0, 0, 0.7);
+    -fx-max-width: 770.00;
+    -fx-pref-height: 10000;
+    -fx-alignment: center;
+    -fx-padding: 0px 25px 0px 25px;
+
+  }

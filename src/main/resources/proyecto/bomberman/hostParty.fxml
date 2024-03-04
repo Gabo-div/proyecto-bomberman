@@ -20,7 +20,7 @@
       <ChoiceBox fx:id="roomSizeChoice"/>
     </HBox>
     <VBox fx:id="buttons">
-      <Button onAction="#SwitchToCreateParty" text="Create Party"/>
+      <Button onAction="#createParty" text="Create Party"/>
       <Button onAction="#switchToMultiplayer" text="Back"/>
     </VBox>
   </VBox>

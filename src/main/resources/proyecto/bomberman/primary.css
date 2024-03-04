@@ -1,12 +1,6 @@
 @import "../../font.css";
 @import "../../global.css";
 
-#box {
-  -fx-background-color: black;
-  -fx-alignment: center;
-  -fx-font-family: 'Bomberman';
-}
-
 #content {
   -fx-alignment: center;
   -fx-max-width: 500px;

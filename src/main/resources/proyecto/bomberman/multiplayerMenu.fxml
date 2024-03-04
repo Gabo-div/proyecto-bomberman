@@ -8,7 +8,12 @@
 <?import javafx.scene.text.Font?>
 
 <VBox fx:id="box" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.MultiplayerMenuController">
-    <Button onAction="#switchToHostParty" text="Host Party" />
-    <Button onAction="#switchToJoinLobby" text="Join Party"/>
-    <Button onAction="#switchToPrimary" text="Back"/>
+    <VBox fx:id = "column">
+        <Label fx:id = "title" text="Don Pepe y sus globos"/>
+        <VBox fx:id="buttons">
+            <Button onAction="#switchToHostParty" text="Host Party" />
+            <Button onAction="#switchToJoinLobby" text="Join Party"/>
+            <Button onAction="#switchToPrimary" text="Back"/>
+        </VBox>
+    </VBox>
 </VBox>
