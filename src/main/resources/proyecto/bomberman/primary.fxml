@@ -12,7 +12,9 @@
        <Button fx:id="singleplayer" onAction="#switchToSinglePlayer" text="Singleplayer"/>
        <Button fx:id="multiplayer" onAction="#switchToMultiplayer" text="Multiplayer"/>
        <Button fx:id="help" onAction="#switchToHelp" text="Help"/>
+       <Button fx:id="about" onAction="#switchToAbout" text="About"/>
        <Button fx:id="exit" onAction="#Exit" text="Exit"/>
+
      </VBox>
   </VBox>
   </VBox>

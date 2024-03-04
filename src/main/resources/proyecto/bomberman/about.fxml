@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+
+  <VBox fx:id="box" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.AboutController">
+    <VBox id="columnMiddle">
+      <VBox fx:id="content">
+
+        <Label fx:id="title" text="Lenguaje Utilizado:"/>
+        <Label fx:id="text" text="-JAVA"/>
+        <Label fx:id="text" text=""/>
+        
+        <Label fx:id="title" text="Librerias Externas:"/>
+        <Label fx:id="text" text="-JavaFX"/>
+        <Label fx:id="text" text=""/>
+
+        <Label fx:id="title" text="Desarrolladores:"/>
+        <Label fx:id="text" text="-Miguel Nuñez V30932227"/>
+        <Label fx:id="text" text="-Gabriel Hernandez V30831045"/>
+        <Label fx:id="text" text="-Christian Vasquez V30452958"/>
+        <Label fx:id="text" text="-Daniel Valenzuela V28619852"/>
+        
+        <VBox fx:id="buttons">
+          <Button onAction="#switchToPrimary" text="Back"/>
+        </VBox>
+
+      </VBox>
+    </VBox>
+  </VBox>
