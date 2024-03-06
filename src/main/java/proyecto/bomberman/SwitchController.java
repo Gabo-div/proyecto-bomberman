@@ -38,6 +38,17 @@ public class SwitchController {
   }
 
   @FXML
+  private void switchToHelp() throws IOException {
+    App.setRoot("help");
+  }
+
+  @FXML
+  private void switchToAbout() throws IOException {
+    App.setRoot("about");
+  }
+
+
+  @FXML
   private void switchToHostParty() throws IOException {
     App.setRoot("hostParty");
   }

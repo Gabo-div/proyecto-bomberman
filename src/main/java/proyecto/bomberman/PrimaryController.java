@@ -5,7 +5,6 @@ import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.fxml.*;
 import javafx.scene.layout.*;
-import javafx.scene.shape.SVGPath;
 
 public class PrimaryController implements Initializable {
   @FXML private VBox box;
@@ -17,9 +16,7 @@ public class PrimaryController implements Initializable {
 
     URL cssURL = App.class.getResource("primary.css");
     String urlString = cssURL.toString();
-    box.getStylesheets().add(urlString);   
-   
-    
+    box.getStylesheets().add(urlString);
   }
 
   @FXML
@@ -30,6 +27,16 @@ public class PrimaryController implements Initializable {
   @FXML
   private void switchToMultiplayer() throws IOException {
     App.setRoot("multiplayerMenu");
+  }
+
+  @FXML
+  private void switchToHelp() throws IOException {
+    App.setRoot("help");
+  }
+
+  @FXML
+  private void switchToAbout() throws IOException {
+    App.setRoot("about");
   }
 
   @FXML

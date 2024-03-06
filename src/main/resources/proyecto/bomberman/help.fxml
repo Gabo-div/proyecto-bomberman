@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.VBox?>
+
+
+  <VBox fx:id="box" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.HelpController">
+    <VBox id="columnMiddle">
+      <VBox fx:id="content">
+
+        <Label fx:id="title" text="Controles"/>
+        <Label fx:id="text" text="El Movimiento del Personaje se controla con las Letras W (arriba), S (abajo), A (izquierda), D (Derecha). Para lanzar Bombas (Globos) se utiliza la tecla ENTER."/>
+        
+        <Label fx:id="title" text="Reglas"/>
+        <Label fx:id="text" text="El juego tiene lugar en una pantalla sin movimiento. La pantalla está conformada por una cuadricula 7x6. La red limita el movimiento de los personajes por lo que sólo puede moverse horizontalmente o verticalmente. Al pulsar el botón Enter hará que BomberMan tire una bomba que cae sobre sus pies. Esta bomba tiene un tiempo límite lo cual permite huir, dispara llamas horizontal y vertical. El juego gira en torno a la idea de utilizar estas explosiones de bombas para destruir los muros y enemigos. Si una bomba golpea estas paredes esta hará que se desintegre haciendo posible pasar a otro lado. Una vez que una bomba se coloca, por lo general es imposible caminar sobre ella hasta que haya explotado. Esto conduce a la táctica de la capturar enemigos con bombas y obligarlos a morir. El ganador será quien logre más copas antes que los demás."/>
+        
+        <VBox fx:id="buttons">
+          <Button onAction="#switchToPrimary" text="Back"/>
+        </VBox>
+
+      </VBox>
+    </VBox>
+  </VBox>
+
