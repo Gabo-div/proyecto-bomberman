@@ -32,7 +32,10 @@
          <TextField fx:id="tf_message" />
          <Button fx:id="button_send" onAction="#sendMessage" text="Enviar" />
        </VBox>
-     </HBox>
-    <Button fx:id="button_ready" text="Empezar"/>
+      </HBox>
+      <HBox fx:id="buttons">
+        <Button fx:id="button_back" text="Volver" onAction="#switchToPrimary"/>
+        <Button fx:id="button_ready" text="Empezar"/>
+      </HBox>
   </VBox>
 </VBox>

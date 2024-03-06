@@ -72,6 +72,12 @@ public class GameServer {
     }
   }
 
+  public void stop() {
+    if (socketServer != null) {
+      socketServer.close();
+    }
+  }
+
   private SocketEventListener newUserHandler = (data, handler) -> {
     NewUserData userData = (NewUserData)SocketSerializer.deserialize(data);
 

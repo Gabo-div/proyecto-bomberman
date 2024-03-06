@@ -37,6 +37,12 @@ public class ClientSocket {
     emit("connect", null);
   }
 
+  public void disconnect() {
+    emit("disconnect", null);
+    shouldClose = true;
+    socket.close();
+  }
+
   private void receiveEventsLoop() {
     while (true) {
       if (shouldClose) {
@@ -76,6 +82,7 @@ public class ClientSocket {
         if (connectionTimeout != null &&
             System.currentTimeMillis() > connectionTimeout) {
           shouldClose = true;
+          socket.close();
           runListeners(new SocketEvent("connectionError", null));
           break;
         }

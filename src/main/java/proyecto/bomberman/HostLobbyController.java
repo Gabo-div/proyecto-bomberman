@@ -1,5 +1,6 @@
 package proyecto.bomberman;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -83,17 +84,6 @@ public class HostLobbyController implements Initializable {
     }).start();
   }
 
-  public void sendMessage() {
-    String messageToSend = tf_message.getText();
-
-    if (messageToSend.isEmpty()) {
-      return;
-    }
-
-    tf_message.clear();
-    server.sendMessage(messageToSend);
-  }
-
   private void startListeners() {
     server.setOnUsersChange((users) -> {
       Platform.runLater(() -> {
@@ -159,11 +149,29 @@ public class HostLobbyController implements Initializable {
   }
 
   @FXML
+  public void sendMessage() {
+    String messageToSend = tf_message.getText();
+
+    if (messageToSend.isEmpty()) {
+      return;
+    }
+
+    tf_message.clear();
+    server.sendMessage(messageToSend);
+  }
+
+  @FXML
   public void changeColor(ActionEvent event) {
     String color = ((Button)event.getSource()).getText();
     CharacterColor characterColor = CharacterColor.valueOf(color);
 
     server.changeColor(characterColor);
+  }
+
+  @FXML
+  public void switchToPrimary() throws IOException {
+    server.stop();
+    App.setRoot("primary");
   }
 
   public void setNickname(String nickname) { this.nickname = nickname; }

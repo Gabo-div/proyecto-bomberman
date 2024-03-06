@@ -55,10 +55,19 @@ public class GameClient {
       clientSocket.addListener("nameTaken",
                                (data) -> { changeState(ServerState.ERROR); });
 
+      clientSocket.addListener(
+          "disconnected", (data) -> { changeState(ServerState.DISCONNECTED); });
+
       clientSocket.connect();
     } catch (Exception e) {
       changeState(ServerState.ERROR);
       e.printStackTrace();
+    }
+  }
+
+  public void stop() {
+    if (clientSocket != null) {
+      clientSocket.disconnect();
     }
   }
 

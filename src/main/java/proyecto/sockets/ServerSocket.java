@@ -13,6 +13,7 @@ public class ServerSocket {
   private byte[] buffer = new byte[1000];
 
   Integer timeoutMs = 5 * 1000;
+  boolean shouldClose = false;
 
   private HashMap<String, ClientHandler> clients = new HashMap<>();
   private HashMap<String, Long> timeouts = new HashMap<>();
@@ -51,9 +52,18 @@ public class ServerSocket {
     new Thread(() -> handleTimeoutLoop()).start();
   }
 
+  public void close() {
+    emit("disconnected", null);
+    socket.close();
+    shouldClose = true;
+  }
+
   private void receiveEventsLoop() {
     while (true) {
       try {
+        if (shouldClose) {
+          break;
+        }
         DatagramPacket packet = new DatagramPacket(buffer, 1000);
         socket.receive(packet);
 
@@ -65,6 +75,11 @@ public class ServerSocket {
 
         if (eventName.equals("connect") && !clients.containsKey(clientName)) {
           handleConnection(packet);
+          continue;
+        }
+
+        if (eventName.equals("disconnect") && clients.containsKey(clientName)) {
+          handleDisconnection(packet);
           continue;
         }
 
@@ -82,7 +97,12 @@ public class ServerSocket {
 
   private void handleTimeoutLoop() {
     while (true) {
+      if (shouldClose) {
+        break;
+      }
+
       try {
+
         Thread.sleep(1000);
         for (String clientName : timeouts.keySet()) {
           if (timeouts.get(clientName) < System.currentTimeMillis()) {
@@ -111,6 +131,17 @@ public class ServerSocket {
 
     handler.emit("connected", null);
     runListeners(new SocketEvent("connected", null), handler);
+  }
+
+  private void handleDisconnection(DatagramPacket packet) {
+    String clientName = getClientName(packet);
+
+    ClientHandler handler = clients.get(clientName);
+
+    clients.remove(clientName);
+    timeouts.remove(clientName);
+
+    runListeners(new SocketEvent("disconnected", null), handler);
   }
 
   private String getClientName(DatagramPacket packet) {

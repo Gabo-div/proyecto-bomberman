@@ -1,5 +1,6 @@
 package proyecto.bomberman;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
@@ -103,7 +104,7 @@ public class LobbyController implements Initializable {
         client.joinLobby(nickname);
       };
 
-      if (state == ServerState.ERROR) {
+      if (state == ServerState.ERROR || state == ServerState.DISCONNECTED) {
         try {
           App.setRoot("lobbyError");
         } catch (Exception e) {
@@ -175,6 +176,7 @@ public class LobbyController implements Initializable {
     });
   }
 
+  @FXML
   public void sendMessage() {
     String messageToSend = tf_message.getText();
 
@@ -192,6 +194,12 @@ public class LobbyController implements Initializable {
     CharacterColor characterColor = CharacterColor.valueOf(color);
 
     client.changeColor(characterColor);
+  }
+
+  @FXML
+  public void switchToPrimary() throws IOException {
+    App.setRoot("primary");
+    client.stop();
   }
 
   public void setNickname(String nickname) { this.nickname = nickname; }
