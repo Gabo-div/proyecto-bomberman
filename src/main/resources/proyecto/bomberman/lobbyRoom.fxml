@@ -11,7 +11,10 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.control.Label?>
 
-<VBox fx:id ="box"  xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.HostLobbyController">
+<VBox fx:id ="box"  xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.LobbyController">
+  <VBox fx:id="loading">
+    <Label fx:id="label_loading" text="Cargando"/>
+  </VBox>
   <VBox fx:id="content">
     <Label fx:id="label_room" text="Sala"/>
     <HBox fx:id="hbox">
@@ -36,3 +39,4 @@
     <Button fx:id="button_ready" text="Empezar"/>
   </VBox>
 </VBox>
+

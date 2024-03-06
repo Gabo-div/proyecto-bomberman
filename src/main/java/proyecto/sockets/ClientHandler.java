@@ -4,7 +4,7 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-class ClientHandler {
+public class ClientHandler {
   DatagramSocket socket;
   InetAddress address;
   int port;

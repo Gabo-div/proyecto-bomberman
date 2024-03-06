@@ -8,19 +8,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-@FunctionalInterface
-interface SocketEventListener {
-  void onEvent(byte[] data, ClientHandler handler);
-}
+public class ServerSocket {
+  private DatagramSocket socket;
+  private byte[] buffer = new byte[1000];
 
-class Server {
-  DatagramSocket socket;
-  byte[] buffer = new byte[1000];
+  Integer timeoutMs = 5 * 1000;
 
-  HashMap<String, ClientHandler> clients = new HashMap<>();
-  HashMap<String, ArrayList<SocketEventListener>> listeners = new HashMap<>();
+  private HashMap<String, ClientHandler> clients = new HashMap<>();
+  private HashMap<String, Long> timeouts = new HashMap<>();
 
-  public Server(int port) throws SocketException {
+  private HashMap<String, ArrayList<SocketEventListener>> listeners =
+      new HashMap<>();
+
+  public ServerSocket(int port) throws SocketException {
     this.socket = new DatagramSocket(port);
     this.listeners = new HashMap<>();
   }
@@ -48,6 +48,7 @@ class Server {
   public void run() {
     System.out.println("Server running in port " + socket.getLocalPort());
     new Thread(() -> receiveEventsLoop()).start();
+    new Thread(() -> handleTimeoutLoop()).start();
   }
 
   private void receiveEventsLoop() {
@@ -56,9 +57,6 @@ class Server {
         DatagramPacket packet = new DatagramPacket(buffer, 1000);
         socket.receive(packet);
 
-        InetAddress packetAddress = packet.getAddress();
-        int packetPort = packet.getPort();
-
         SocketEvent event =
             (SocketEvent)SocketSerializer.deserialize(packet.getData());
 
@@ -66,16 +64,13 @@ class Server {
         String clientName = getClientName(packet);
 
         if (eventName.equals("connect") && !clients.containsKey(clientName)) {
-          ClientHandler handler =
-              new ClientHandler(socket, packetAddress, packetPort);
-          clients.put(clientName, handler);
-          handler.emit("connected", null);
-          runListeners(new SocketEvent("connected", null), handler);
+          handleConnection(packet);
           continue;
         }
 
         if (clients.containsKey(clientName)) {
           ClientHandler handler = clients.get(clientName);
+          timeouts.put(clientName, System.currentTimeMillis() + timeoutMs);
           runListeners(event, handler);
         }
 
@@ -83,6 +78,39 @@ class Server {
         e.printStackTrace();
       }
     }
+  }
+
+  private void handleTimeoutLoop() {
+    while (true) {
+      try {
+        Thread.sleep(1000);
+        for (String clientName : timeouts.keySet()) {
+          if (timeouts.get(clientName) < System.currentTimeMillis()) {
+            runListeners(new SocketEvent("disconnected", null),
+                         clients.get(clientName));
+            clients.remove(clientName);
+            timeouts.remove(clientName);
+          }
+        }
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  private void handleConnection(DatagramPacket packet) {
+    InetAddress packetAddress = packet.getAddress();
+    int packetPort = packet.getPort();
+    String clientName = getClientName(packet);
+
+    ClientHandler handler =
+        new ClientHandler(socket, packetAddress, packetPort);
+
+    clients.put(clientName, handler);
+    timeouts.put(clientName, System.currentTimeMillis() + timeoutMs);
+
+    handler.emit("connected", null);
+    runListeners(new SocketEvent("connected", null), handler);
   }
 
   private String getClientName(DatagramPacket packet) {
@@ -96,4 +124,6 @@ class Server {
       }
     }
   }
+
+  public int getPort() { return socket.getLocalPort(); }
 }

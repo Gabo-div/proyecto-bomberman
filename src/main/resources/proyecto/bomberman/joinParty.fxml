@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.collections.FXCollections?>
+
+<VBox fx:id="box" xmlns="http://javafx.com/javafx/21.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="proyecto.bomberman.JoinPartyController">
+  <VBox fx:id="content">
+    <Label fx:id="title" text="Join Party"/>
+    <HBox fx:id="input">
+      <Label text="Nickname" />
+      <TextField fx:id="nicknameField"/>
+    </HBox>
+    <HBox fx:id="input">
+      <Label text="Port" />
+      <TextField fx:id="portField"/>
+    </HBox>
+    <VBox fx:id="buttons">
+      <Button onAction="#joinParty" text="Join Party"/>
+      <Button onAction="#switchToMultiplayer" text="Back"/>
+    </VBox>
+  </VBox>
+</VBox>

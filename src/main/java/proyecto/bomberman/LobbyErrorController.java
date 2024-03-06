@@ -6,24 +6,17 @@ import java.util.ResourceBundle;
 import javafx.fxml.*;
 import javafx.scene.layout.*;
 
-public class MultiplayerMenuController implements Initializable {
+public class LobbyErrorController implements Initializable {
   @FXML private VBox box;
+  @FXML private VBox content;
 
   @Override
   public void initialize(URL url, ResourceBundle rb) {
-    URL cssURL = App.class.getResource("multiplayerMenu.css");
+    URL cssURL = App.class.getResource("lobbyError.css");
     String urlString = cssURL.toString();
     box.getStylesheets().add(urlString);
-  }
 
-  @FXML
-  private void switchToHostParty() throws IOException {
-    App.setRoot("hostParty");
-  }
-
-  @FXML
-  private void switchToJoinLobby() throws IOException {
-    App.setRoot("joinParty");
+    content.prefHeightProperty().bind(App.getStage().heightProperty());
   }
 
   @FXML

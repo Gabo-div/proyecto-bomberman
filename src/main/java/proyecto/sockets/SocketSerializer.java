@@ -6,7 +6,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-class SocketSerializer {
+public class SocketSerializer {
 
   public static byte[] serialize(Serializable event) {
     try {
@@ -25,7 +25,7 @@ class SocketSerializer {
     try {
       ByteArrayInputStream bis = new ByteArrayInputStream(data);
       ObjectInputStream ois = new ObjectInputStream(bis);
-      return (SocketEvent)ois.readObject();
+      return (Serializable)ois.readObject();
     } catch (Exception e) {
       e.printStackTrace();
     }

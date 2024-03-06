@@ -28,11 +28,9 @@ public class HostPartyController implements Initializable {
     App.setRoot("hostLobbyRoom");
     Initializable controller = App.getCurrentController();
 
-    if (controller instanceof HostLobbyRoomController) {
-      ((HostLobbyRoomController)controller)
-          .setNickname(nicknameField.getText());
-      ((HostLobbyRoomController)controller)
-          .setRoomSize(roomSizeChoice.getValue());
+    if (controller instanceof HostLobbyController) {
+      ((HostLobbyController)controller).setNickname(nicknameField.getText());
+      ((HostLobbyController)controller).setRoomSize(roomSizeChoice.getValue());
     }
   }
 

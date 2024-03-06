@@ -1,0 +1,29 @@
+@import "../../font.css";
+@import "../../global.css";
+
+#content {
+  -fx-background-color: rgba(0, 0, 0, 0.6);
+  -fx-alignment: center;
+  -fx-max-width: 500px;
+  -fx-pref-height: 10000;
+  -fx-spacing: 10px;
+}
+
+#title {
+  -fx-font-size: 30px;
+  -fx-padding: 0px 0px 60px 0px;
+}
+
+#input {
+  -fx-alignment: center;
+}
+
+#input .label {
+  -fx-padding: 0px 20px 0px 0px;
+}
+
+#buttons {
+  -fx-padding: 60px 0px 0px 0px;
+  -fx-alignment: center;
+  -fx-spacing: 10px;
+}

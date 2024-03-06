@@ -1,10 +1,15 @@
 @import "../../font.css";
 @import "../../global.css";
 
-#content {
+#content,
+#loading {
   -fx-background-color: rgb(0, 0, 0, 0.7);
   -fx-alignment: center;
   -fx-spacing: 30px;
+}
+
+#label_loading {
+  -fx-font-size: 30px;
 }
 
 #label_room {

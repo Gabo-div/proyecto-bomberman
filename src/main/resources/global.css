@@ -6,6 +6,8 @@
   -fx-background-size: cover;
   -fx-background-position: center;
   -fx-font-family: 'Bomberman';
+  -fx-pref-width: 100%;
+  -fx-pref-height: 100%;
 }
 
 #column {
@@ -25,6 +27,7 @@
   -fx-border-color: transparent;
   -fx-border-radius: 10px;
   -fx-padding: 5px 20px 5px 20px;
+  -fx-cursor: hand;
 }
 
 .button:hover,

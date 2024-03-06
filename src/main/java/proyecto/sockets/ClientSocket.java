@@ -7,22 +7,23 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-@FunctionalInterface
-interface ClientEventListener {
-  void onEvent(byte[] data);
-}
-
-class Client {
+public class ClientSocket {
   DatagramSocket socket;
   InetAddress address;
   int port;
 
+  boolean isConnected = false;
+  boolean shouldClose = false;
+
   byte[] inBuffer = new byte[1000];
   byte[] outBuffer = new byte[1000];
 
+  Integer timeoutMs = 5 * 1000;
+  Long connectionTimeout;
+
   HashMap<String, ArrayList<ClientEventListener>> listeners = new HashMap<>();
 
-  public Client(InetAddress address, int port) throws IOException {
+  public ClientSocket(InetAddress address, int port) throws IOException {
     this.socket = new DatagramSocket();
     this.address = address;
     this.port = port;
@@ -30,11 +31,18 @@ class Client {
 
   public void connect() {
     new Thread(() -> receiveEventsLoop()).start();
+    new Thread(() -> connectionLoop()).start();
+
+    connectionTimeout = System.currentTimeMillis() + timeoutMs;
     emit("connect", null);
   }
 
   private void receiveEventsLoop() {
     while (true) {
+      if (shouldClose) {
+        break;
+      }
+
       try {
         DatagramPacket packet = new DatagramPacket(inBuffer, inBuffer.length);
         socket.receive(packet);
@@ -42,12 +50,50 @@ class Client {
         SocketEvent event =
             (SocketEvent)SocketSerializer.deserialize(packet.getData());
 
-        System.out.println(event.getName());
+        String eventName = event.getName();
+
+        if (eventName.equals("connected") && !isConnected) {
+          isConnected = true;
+          connectionTimeout = null;
+        }
 
         runListeners(event);
       } catch (Exception e) {
         e.printStackTrace();
       }
+    }
+  }
+
+  private void connectionLoop() {
+    while (true) {
+      if (shouldClose) {
+        break;
+      }
+
+      try {
+        Thread.sleep(1000);
+
+        if (connectionTimeout != null &&
+            System.currentTimeMillis() > connectionTimeout) {
+          shouldClose = true;
+          runListeners(new SocketEvent("connectionError", null));
+          break;
+        }
+
+        emit("ping", null);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
+
+  public void addListener(String name, ClientEventListener listener) {
+    if (listeners.containsKey(name)) {
+      listeners.get(name).add(listener);
+    } else {
+      ArrayList<ClientEventListener> l = new ArrayList<>();
+      l.add(listener);
+      listeners.put(name, l);
     }
   }
 

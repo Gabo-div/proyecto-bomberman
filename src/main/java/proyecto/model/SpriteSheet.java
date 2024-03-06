@@ -15,8 +15,13 @@ public class SpriteSheet {
     File[] sprites = spritesFolder.listFiles();
 
     for (int i = 0; i < sprites.length; i++) {
-      Sprite sprite = new Sprite(sprites[i]);
-      spriteMap.put(sprite.getName(), sprite);
+      try {
+        Sprite sprite = new Sprite(sprites[i]);
+        spriteMap.put(sprite.getName(), sprite);
+
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
     }
   }
 
