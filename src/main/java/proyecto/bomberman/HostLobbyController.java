@@ -24,42 +24,82 @@ import proyecto.multiplayer.CharacterColor;
 import proyecto.multiplayer.GameServer;
 import proyecto.multiplayer.User;
 
+/**
+ * Controlador para la vista de la sala de fiestas del anfitrión en el juego.
+ */
 public class HostLobbyController implements Initializable {
 
+  /** Contenedor de diseño vertical. */
   @FXML private VBox box;
+
+  /** Contenedor de contenido principal. */
   @FXML private VBox content;
+
+  /** Contenedor de jugadores en la sala . */
   @FXML private VBox players;
+
+  /** Contenedor de chat en la sala. */
   @FXML private VBox chat;
 
+  /** Etiqueta para mostrar el número de sala. */
   @FXML private Label label_room;
 
+  /** Botón para enviar mensajes en el chat. */
   @FXML private Button button_send;
+
+  /** Campo de texto para ingresar mensajes en el chat. */
   @FXML private TextField tf_message;
+
+  /** Contenedor de mensajes en el chat. */
   @FXML private VBox vbox_messages;
+
+  /** ScrollPane para desplazar los mensajes en el chat. */
   @FXML private ScrollPane sp_main;
+
+  /** Cuadrícula para la disposición de elementos. */
   @FXML private static GridPane gridpane;
+
+  /** Campo de texto para ingresar el nombre de usuario. */
   @FXML private static TextField tf_username;
 
+  /** Apodo del anfitrión de la sala. */
   private String nickname;
+
+  /** Tamaño de la sala. */
   private Integer roomSize;
 
+  /** Instancia del escenario de la aplicación. */
   private Stage stage = App.getStage();
+
+  /** Instancia del servidor del juego. */
   private GameServer server = GameServer.getInstance();
 
+  /**
+   * Inicializa el controlador después de que se haya cargado la vista.
+   * @param url La ubicación relativa del archivo FXML.
+   * @param rb Recursos específicos del idioma.
+   */
   @Override
   public void initialize(URL url, ResourceBundle rb) {
+    // Cargar la hoja de estilo CSS para la sala de fiestas del anfitrión
     URL cssURL = App.class.getResource("hostLobbyRoom.css");
     String urlString = cssURL.toString();
     box.getStylesheets().add(urlString);
 
+    // Esperar a que se obtengan los datos necesarios
     waitForData();
 
+    // Ajustar la altura del contenedor de contenido principal
     content.prefHeightProperty().bind(stage.heightProperty());
   }
 
+  /**
+   * Espera hasta que se obtengan los datos necesarios (apodo y tamaño de la sala).
+   */
   private void waitForData() {
     new Thread(() -> {
       while (true) {
+        // Verificar si se han obtenido el apodo y el tamaño de la sala
         if (nickname == null || roomSize == null) {
           try {
             Thread.sleep(100);
@@ -69,13 +109,16 @@ public class HostLobbyController implements Initializable {
           continue;
         }
 
+        // Una vez que se obtienen los datos, iniciar el servidor y los escuchadores
         Platform.runLater(() -> {
           server.start(roomSize);
           startListeners();
 
+          // Establecer al usuario anfitrión de la sala
           User hostUser = new User(nickname, CharacterColor.WHITE);
           server.setHost(hostUser);
 
+          // Mostrar el número de sala en la etiqueta correspondiente
           label_room.setText("Sala: " + server.getPort());
         });
 
@@ -84,16 +127,20 @@ public class HostLobbyController implements Initializable {
     }).start();
   }
 
+  /**
+   * Inicia los escuchadores para los cambios de usuarios y mensajes en el servidor.
+   */
   private void startListeners() {
     server.setOnUsersChange((users) -> {
       Platform.runLater(() -> {
+        // Limpiar el contenedor de jugadores en la sala 
         players.getChildren().clear();
 
+        // Iterar sobre los usuarios y mostrarlos en el contenedor de jugadores
         for (User user : users) {
           CharacterColor color = user.getColor();
           String characterColor = color.toString().toLowerCase();
-          Sprite sprite =
-              SpriteSheet.getInstance().getSprite(characterColor + "_face");
+          Sprite sprite = SpriteSheet.getInstance().getSprite(characterColor + "_face");
           ImageView imageView = new ImageView(sprite.getImage());
           imageView.setFitHeight(24);
           imageView.setFitWidth(24);
@@ -114,24 +161,25 @@ public class HostLobbyController implements Initializable {
     });
 
     server.setOnMessage((message) -> {
+      // Obtener el mensaje y el usuario que lo envió
       String messageToSend = message.getMessage();
       User user = message.getUser();
       String name = user.getName();
 
+      // Determinar la posición del mensaje en función del usuario
       Pos position = Pos.TOP_LEFT;
-      String styles =
-          "-fx-background-color: rgb(213, 213, 215); -fx-background-radius: 20px;";
+      String styles = "-fx-background-color: rgb(213, 213, 215); -fx-background-radius: 20px;";
       Color fill = Color.BLACK;
       String textMsg = name + ": " + messageToSend;
 
       if (name.equals(nickname)) {
         position = Pos.TOP_RIGHT;
-        styles =
-            "-fx-background-color: rgb(50, 50, 50); -fx-background-radius: 20px; -fx-padding: 5;";
+        styles = "-fx-background-color: rgb(50, 50, 50); -fx-background-radius: 20px; -fx-padding: 5;";
         fill = Color.WHITE;
         textMsg = messageToSend;
       }
 
+      // Crear el nodo de texto con estilo y agregarlo al contenedor de mensajes
       HBox hbox = new HBox();
       hbox.setAlignment(position);
       hbox.setPadding(new Insets(5, 5, 5, 10));
@@ -148,6 +196,9 @@ public class HostLobbyController implements Initializable {
     });
   }
 
+  /**
+   * Envía un mensaje al chat.
+   */
   @FXML
   public void sendMessage() {
     String messageToSend = tf_message.getText();
@@ -160,6 +211,10 @@ public class HostLobbyController implements Initializable {
     server.sendMessage(messageToSend);
   }
 
+  /**
+   * Cambia el color del personaje del anfitrión.
+   * @param event El evento que desencadena el cambio de color.
+   */
   @FXML
   public void changeColor(ActionEvent event) {
     String color = ((Button)event.getSource()).getText();
@@ -168,13 +223,25 @@ public class HostLobbyController implements Initializable {
     server.changeColor(characterColor);
   }
 
+  /**
+   * Cambia a la vista principal y detiene el servidor.
+   * @throws IOException si hay un error al cambiar la vista.
+   */
   @FXML
   public void switchToPrimary() throws IOException {
     server.stop();
     App.setRoot("primary");
   }
 
+  /**
+   * Establece el apodo del anfitrión de la sala de fiestas.
+   * @param nickname El apodo del anfitrión.
+   */
   public void setNickname(String nickname) { this.nickname = nickname; }
 
+  /**
+   * Establece el tamaño de la sala.
+   * @param roomSize El tamaño de la sala.
+   */
   public void setRoomSize(Integer roomSize) { this.roomSize = roomSize; }
 }
