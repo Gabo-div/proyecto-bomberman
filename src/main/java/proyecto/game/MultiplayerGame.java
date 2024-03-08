@@ -111,11 +111,9 @@ public class MultiplayerGame {
       return;
     }
 
-    double deltaSeconds = deltaMs / 1000;
-
     Coord<Double> playerCoord = player.getCoord();
     Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
-    double speed = player.getSpeed() * deltaSeconds;
+    double speed = player.getSpeed();
 
     if (player.getMovementStateX() == 0 && player.getMovementStateY() == 0) {
       player.setDirectionStateCounter(0);
@@ -239,10 +237,6 @@ public class MultiplayerGame {
     }
 
     calculateTick(deltaMs);
-
-    for (Player player : players) {
-      System.out.println(player.getName());
-    }
 
     handlePlayers(deltaMs);
     handleBombs();

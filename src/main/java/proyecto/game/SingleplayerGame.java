@@ -63,11 +63,10 @@ public class SingleplayerGame {
   public ArrayList<Bomb> getBombs() { return bombs; }
 
   public void movePlayer(double deltaMs) {
-    double deltaSeconds = deltaMs / 1000;
 
     Coord<Double> playerCoord = player.getCoord();
     Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
-    double speed = player.getSpeed() * deltaSeconds;
+    double speed = player.getSpeed();
 
     if (!(keyHandler.isDown(KeyCode.A) || keyHandler.isDown(KeyCode.D) ||
           keyHandler.isDown(KeyCode.W) || keyHandler.isDown(KeyCode.S))) {
@@ -192,8 +191,6 @@ public class SingleplayerGame {
         continue;
       }
 
-      double deltaSeconds = deltaMs / 1000;
-
       if (character.getDirectionStateCounter() >= 10) {
         int directionState = character.getDirectionState();
 
@@ -209,7 +206,7 @@ public class SingleplayerGame {
                                          1);
 
       Direction direction = character.getDirection();
-      Double speed = character.getSpeed() * deltaSeconds;
+      Double speed = character.getSpeed();
       Coord<Double> characterCoord = character.getCoord();
       Coord<Double> newCoord = new Coord<>(characterCoord.x, characterCoord.y);
 

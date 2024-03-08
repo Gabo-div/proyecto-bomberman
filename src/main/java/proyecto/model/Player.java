@@ -12,7 +12,7 @@ public class Player extends Character {
   String name;
 
   public Player(Coord<Double> coord, int lifes, Integer firepower) {
-    super(coord, 4, lifes);
+    super(coord, 0.25 / 2, lifes);
     this.bombType = BombType.BASIC;
     this.firepower = firepower;
     this.availableBombs = 1;
