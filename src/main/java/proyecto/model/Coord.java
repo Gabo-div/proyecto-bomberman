@@ -1,6 +1,8 @@
 package proyecto.model;
 
-public class Coord<T extends Number> {
+import java.io.Serializable;
+
+public class Coord<T extends Number> implements Serializable {
   public T x;
   public T y;
 

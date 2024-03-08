@@ -62,11 +62,12 @@ public class SingleplayerGame {
 
   public ArrayList<Bomb> getBombs() { return bombs; }
 
-  public void movePlayer() {
+  public void movePlayer(double deltaMs) {
+    double deltaSeconds = deltaMs / 1000;
 
     Coord<Double> playerCoord = player.getCoord();
     Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
-    double speed = player.getSpeed();
+    double speed = player.getSpeed() * deltaSeconds;
 
     if (!(keyHandler.isDown(KeyCode.A) || keyHandler.isDown(KeyCode.D) ||
           keyHandler.isDown(KeyCode.W) || keyHandler.isDown(KeyCode.S))) {
@@ -181,7 +182,7 @@ public class SingleplayerGame {
     player.setCoord(newCoord);
   }
 
-  public void moveCharacters() {
+  public void moveCharacters(double deltaMs) {
     for (Character character : level.getCharacters()) {
       if (character instanceof Player) {
         continue;
@@ -190,6 +191,8 @@ public class SingleplayerGame {
       if (character.isDead()) {
         continue;
       }
+
+      double deltaSeconds = deltaMs / 1000;
 
       if (character.getDirectionStateCounter() >= 10) {
         int directionState = character.getDirectionState();
@@ -206,7 +209,7 @@ public class SingleplayerGame {
                                          1);
 
       Direction direction = character.getDirection();
-      Double speed = character.getSpeed();
+      Double speed = character.getSpeed() * deltaSeconds;
       Coord<Double> characterCoord = character.getCoord();
       Coord<Double> newCoord = new Coord<>(characterCoord.x, characterCoord.y);
 
@@ -319,8 +322,8 @@ public class SingleplayerGame {
     countDownMs -= (int)Math.round(deltaMs);
     calculateTick(deltaMs);
     handleInvencibility();
-    movePlayer();
-    moveCharacters();
+    movePlayer(deltaMs);
+    moveCharacters(deltaMs);
     handleBombs();
   }
 

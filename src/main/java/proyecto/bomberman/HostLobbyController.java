@@ -22,6 +22,7 @@ import proyecto.model.Sprite;
 import proyecto.model.SpriteSheet;
 import proyecto.multiplayer.CharacterColor;
 import proyecto.multiplayer.GameServer;
+import proyecto.multiplayer.ServerState;
 import proyecto.multiplayer.User;
 
 public class HostLobbyController implements Initializable {
@@ -40,6 +41,8 @@ public class HostLobbyController implements Initializable {
   @FXML private static GridPane gridpane;
   @FXML private static TextField tf_username;
 
+  @FXML private Button button_start;
+
   private String nickname;
   private Integer roomSize;
 
@@ -51,6 +54,7 @@ public class HostLobbyController implements Initializable {
     URL cssURL = App.class.getResource("hostLobbyRoom.css");
     String urlString = cssURL.toString();
     box.getStylesheets().add(urlString);
+    button_start.setDisable(true);
 
     waitForData();
 
@@ -85,6 +89,18 @@ public class HostLobbyController implements Initializable {
   }
 
   private void startListeners() {
+    server.setOnStateChange((state) -> {
+      Platform.runLater(() -> {
+        if (state == ServerState.INGAME) {
+          try {
+            App.setRoot("hostMultiplayer");
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      });
+    });
+
     server.setOnUsersChange((users) -> {
       Platform.runLater(() -> {
         players.getChildren().clear();
@@ -109,6 +125,12 @@ public class HostLobbyController implements Initializable {
           hbox.getChildren().add(text);
 
           players.getChildren().add(hbox);
+        }
+
+        if (users.size() >= 2) {
+          button_start.setDisable(false);
+        } else {
+          button_start.setDisable(true);
         }
       });
     });
@@ -172,6 +194,11 @@ public class HostLobbyController implements Initializable {
   public void switchToPrimary() throws IOException {
     server.stop();
     App.setRoot("primary");
+  }
+
+  @FXML
+  public void startGame() {
+    server.startGame();
   }
 
   public void setNickname(String nickname) { this.nickname = nickname; }

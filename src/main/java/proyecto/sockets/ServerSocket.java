@@ -10,7 +10,7 @@ import java.util.List;
 
 public class ServerSocket {
   private DatagramSocket socket;
-  private byte[] buffer = new byte[1000];
+  private byte[] buffer = new byte[2048];
 
   Integer timeoutMs = 5 * 1000;
   boolean shouldClose = false;
@@ -21,9 +21,10 @@ public class ServerSocket {
   private HashMap<String, ArrayList<SocketEventListener>> listeners =
       new HashMap<>();
 
-  public ServerSocket(int port) throws SocketException {
+  public ServerSocket(int port, int packetSize) throws SocketException {
     this.socket = new DatagramSocket(port);
     this.listeners = new HashMap<>();
+    this.buffer = new byte[packetSize];
   }
 
   public List<ClientHandler> getClients() {
@@ -64,7 +65,7 @@ public class ServerSocket {
         if (shouldClose) {
           break;
         }
-        DatagramPacket packet = new DatagramPacket(buffer, 1000);
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
         socket.receive(packet);
 
         SocketEvent event =
@@ -124,7 +125,7 @@ public class ServerSocket {
     String clientName = getClientName(packet);
 
     ClientHandler handler =
-        new ClientHandler(socket, packetAddress, packetPort);
+        new ClientHandler(socket, packetAddress, packetPort, buffer.length);
 
     clients.put(clientName, handler);
     timeouts.put(clientName, System.currentTimeMillis() + timeoutMs);

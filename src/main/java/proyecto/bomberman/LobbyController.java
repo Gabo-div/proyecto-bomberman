@@ -45,6 +45,8 @@ public class LobbyController implements Initializable {
   @FXML private static GridPane gridpane;
   @FXML private static TextField tf_username;
 
+  @FXML private Button button_start;
+
   private GameClient client = GameClient.getInstance();
   private String nickname;
   private Integer port;
@@ -64,6 +66,8 @@ public class LobbyController implements Initializable {
 
     loading.setVisible(true);
     content.setVisible(false);
+
+    button_start.setDisable(true);
 
     waitForData();
   }
@@ -103,6 +107,14 @@ public class LobbyController implements Initializable {
         content.setVisible(true);
         client.joinLobby(nickname);
       };
+
+      if (state == ServerState.INGAME) {
+        try {
+          App.setRoot("multiplayer");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
 
       if (state == ServerState.ERROR || state == ServerState.DISCONNECTED) {
         try {
