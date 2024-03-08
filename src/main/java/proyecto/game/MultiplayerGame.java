@@ -86,10 +86,10 @@ public class MultiplayerGame {
 
   public ArrayList<Bomb> getBombs() { return bombs; }
 
-  public void handlePlayers() {
+  public void handlePlayers(double deltaMs) {
     for (Player player : players) {
       handlePlayerInvincibility(player);
-      handlePlayerMovement(player);
+      handlePlayerMovement(player, deltaMs);
     }
   }
 
@@ -106,14 +106,16 @@ public class MultiplayerGame {
     }
   }
 
-  private void handlePlayerMovement(Player player) {
+  private void handlePlayerMovement(Player player, double deltaMs) {
     if (player.isDead()) {
       return;
     }
 
+    double deltaSeconds = deltaMs / 1000;
+
     Coord<Double> playerCoord = player.getCoord();
     Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
-    double speed = player.getSpeed();
+    double speed = player.getSpeed() * deltaSeconds;
 
     if (player.getMovementStateX() == 0 && player.getMovementStateY() == 0) {
       player.setDirectionStateCounter(0);
@@ -242,7 +244,7 @@ public class MultiplayerGame {
       System.out.println(player.getName());
     }
 
-    handlePlayers();
+    handlePlayers(deltaMs);
     handleBombs();
   }
 
