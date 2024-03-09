@@ -18,6 +18,9 @@ import proyecto.sockets.ServerSocket;
 import proyecto.sockets.SocketEventListener;
 import proyecto.sockets.SocketSerializer;
 
+/**
+ * Clase que representa el servidor del juego para el modo multijugador.
+ */
 public class GameServer {
   private static GameServer instance;
 
@@ -34,8 +37,15 @@ public class GameServer {
   private Consumer<List<User>> onUsersChange;
   private Consumer<Message> onMessage;
 
+  /**
+   * Constructor privado para seguir el patrón Singleton.
+   */
   private GameServer() {}
 
+  /**
+   * Método estático para obtener la instancia única del servidor de juego.
+   * @return La instancia única del servidor de juego.
+   */
   public static GameServer getInstance() {
     if (instance == null) {
       instance = new GameServer();
@@ -43,17 +53,23 @@ public class GameServer {
     return instance;
   }
 
+  /**
+   * Método para iniciar el servidor de juego.
+   * @param roomSize Tamaño máximo de la sala de juego.
+   */
   public void start(int roomSize) {
     try {
       this.roomSize = roomSize;
       socketServer = new ServerSocket(0, 9000);
 
+      // Configuración de los listeners de eventos del socket del servidor
       socketServer.addListener("newUser", newUserHandler);
       socketServer.addListener("chatMessage", chatMessageHandler);
       socketServer.addListener("changeColor", colorHandler);
       socketServer.addListener("movement", movementHandler);
       socketServer.addListener("bomb", bombHandler);
 
+      // Listener para manejar desconexiones de clientes
       socketServer.addListener("disconnected", (data, handler) -> {
         if (users.containsKey(handler)) {
           users.remove(handler);
@@ -65,6 +81,7 @@ public class GameServer {
         }
       });
 
+      // Iniciar el servidor
       socketServer.run();
       changeState(ServerState.CONNECTED);
 
@@ -74,6 +91,10 @@ public class GameServer {
     }
   }
 
+  /**
+   * Método para cambiar el estado del servidor.
+   * @param state El nuevo estado del servidor.
+   */
   private void changeState(ServerState state) {
     serverState = state;
     if (onStateChange != null) {
@@ -81,6 +102,9 @@ public class GameServer {
     }
   }
 
+  /**
+   * Método para detener el servidor de juego.
+   */
   public void stop() {
     if (socketServer != null) {
       changeState(ServerState.DISCONNECTED);
@@ -89,6 +113,7 @@ public class GameServer {
     }
   }
 
+  // Manejador de eventos para nuevos usuarios
   private SocketEventListener newUserHandler = (data, handler) -> {
     NewUserData userData = (NewUserData)SocketSerializer.deserialize(data);
 
@@ -118,22 +143,7 @@ public class GameServer {
     }
   };
 
-  public ServerState getServerState() { return serverState; }
-
-  private void sendUsersData() {
-    UsersData usersData = new UsersData();
-    usersData.users = new ArrayList<>();
-
-    for (User user : users.values()) {
-      NewUserData userData = new NewUserData();
-      userData.name = user.getName();
-      userData.color = user.getColor();
-      usersData.users.add(userData);
-    }
-
-    socketServer.emit("users", SocketSerializer.serialize(usersData));
-  }
-
+  // Manejador de eventos para mensajes de chat
   private SocketEventListener chatMessageHandler = (data, handler) -> {
     NewMessageData messageData =
         (NewMessageData)SocketSerializer.deserialize(data);
@@ -149,6 +159,7 @@ public class GameServer {
     }
   };
 
+  // Manejador de eventos para cambios de color de usuario
   private SocketEventListener colorHandler = (data, handler) -> {
     String colorName = (String)SocketSerializer.deserialize(data);
     CharacterColor color = CharacterColor.valueOf(colorName);
@@ -160,6 +171,7 @@ public class GameServer {
     }
   };
 
+  // Manejador de eventos para movimientos de jugadores
   private SocketEventListener movementHandler = (data, handler) -> {
     MovementData movementData =
         (MovementData)SocketSerializer.deserialize(data);
@@ -174,11 +186,34 @@ public class GameServer {
     player.setMovementStateY(movementData.stateY);
   };
 
+  // Manejador de eventos para colocación de bombas
   private SocketEventListener bombHandler = (data, handler) -> {
     User user = users.get(handler);
     game.addBomb(user.getName());
   };
 
+  /**
+   * Método para obtener el estado del servidor.
+   * @return El estado del servidor.
+   */
+  public ServerState getServerState() { return serverState; }
+
+  // Método para enviar datos de usuarios a todos los clientes
+  private void sendUsersData() {
+    UsersData usersData = new UsersData();
+    usersData.users = new ArrayList<>();
+
+    for (User user : users.values()) {
+      NewUserData userData = new NewUserData();
+      userData.name = user.getName();
+      userData.color = user.getColor();
+      usersData.users.add(userData);
+    }
+
+    socketServer.emit("users", SocketSerializer.serialize(usersData));
+  }
+
+  // Métodos para enviar mensajes de chat y cambiar colores de usuarios al host
   public void sendMessage(String message) {
     NewMessageData data = new NewMessageData();
 
@@ -201,6 +236,7 @@ public class GameServer {
     }
   }
 
+  // Método para sincronizar datos de clientes con el juego
   public void syncClients() {
     ArrayList<Player> players = game.getPlayers();
     ArrayList<Bomb> bombs = game.getBombs();
@@ -218,6 +254,7 @@ public class GameServer {
     socketServer.emit("syncState", gameStateData);
   }
 
+  // Métodos para iniciar y finalizar el juego
   public void startGame() {
     if (users.size() < 2) {
       return;
@@ -233,10 +270,12 @@ public class GameServer {
     socketServer.emit("endGame", null);
   }
 
+  // Método para obtener la lista de clientes conectados
   public ArrayList<User> getClients() {
     return new ArrayList<>(users.values());
   }
 
+  // Método para configurar al host del juego
   public void setHost(User user) {
     hostUser = user;
     users.put(null, user);
@@ -248,23 +287,48 @@ public class GameServer {
     }
   }
 
+  // Método para obtener al host del juego
   public User getHost() { return hostUser; }
 
+  /**
+   * Método para configurar el consumidor de eventos de cambio de estado del servidor.
+   * @param onStateChange El consumidor de eventos de cambio de estado del servidor.
+   */
   public void setOnStateChange(Consumer<ServerState> onStateChange) {
     this.onStateChange = onStateChange;
   }
 
+  /**
+   * Método para configurar el consumidor de eventos de cambio de usuarios en el servidor.
+   * @param onUsersChange El consumidor de eventos de cambio de usuarios en el servidor.
+   */
   public void setOnUsersChange(Consumer<List<User>> onUsersChange) {
     this.onUsersChange = onUsersChange;
   }
 
+  /**
+   * Método para configurar el consumidor de eventos de mensajes de chat.
+   * @param onMessage El consumidor de eventos de mensajes de chat.
+   */
   public void setOnMessage(Consumer<Message> onMessage) {
     this.onMessage = onMessage;
   }
 
+  /**
+   * Método para obtener la lista de usuarios en el servidor.
+   * @return La lista de usuarios en el servidor.
+   */
   public List<User> getUsers() { return new ArrayList<>(users.values()); }
 
+  /**
+   * Método para obtener el puerto al que está conectado el servidor.
+   * @return El puerto al que está conectado el servidor.
+   */
   public int getPort() { return socketServer.getPort(); }
 
+  /**
+   * Método para obtener el estado del servidor.
+   * @return El estado del servidor.
+   */
   public ServerState getState() { return serverState; }
 }

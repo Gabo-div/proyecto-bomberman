@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Clase que representa un nivel del juego.
+ */
 public class Level implements Serializable {
 
   private int width;
@@ -15,6 +18,12 @@ public class Level implements Serializable {
 
   private ArrayList<Character> characters = new ArrayList<>();
 
+  /**
+   * Constructor para crear un nivel con un solo jugador.
+   * @param width Ancho del nivel.
+   * @param height Altura del nivel.
+   * @param player Jugador que participa en el nivel.
+   */
   public Level(int width, int height, Player player) {
     this.width = width;
     this.height = height;
@@ -35,6 +44,12 @@ public class Level implements Serializable {
     generateBricks(brickPositions);
   }
 
+  /**
+   * Constructor para crear un nivel con varios jugadores.
+   * @param width Ancho del nivel.
+   * @param height Altura del nivel.
+   * @param players Lista de jugadores que participan en el nivel.
+   */
   public Level(int width, int height, List<Player> players) {
     this.width = width;
     this.height = height;

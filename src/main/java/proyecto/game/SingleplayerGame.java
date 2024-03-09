@@ -5,6 +5,9 @@ import javafx.scene.input.KeyCode;
 import proyecto.model.*;
 import proyecto.model.Character;
 
+/**
+ * The SingleplayerGame class manages the game state and logic for singleplayer mode.
+ */
 public class SingleplayerGame {
 
   private static SingleplayerGame instance;
@@ -20,6 +23,9 @@ public class SingleplayerGame {
   private KeyHandler keyHandler = KeyHandler.getInstance();
   private Integer countDownMs = 0;
 
+  /**
+   * Private constructor to prevent instantiation from outside the class.
+   */
   private SingleplayerGame() {
     spriteSheet = SpriteSheet.getInstance();
     Coord<Double> playerCoord = new Coord<>(1.0, 1.0);
@@ -30,6 +36,11 @@ public class SingleplayerGame {
     level = new Level(15, 13, player);
   }
 
+  /**
+   * Gets the singleton instance of SingleplayerGame.
+   *
+   * @return The instance of SingleplayerGame.
+   */
   public static SingleplayerGame getInstance() {
     if (instance == null) {
       instance = new SingleplayerGame();
@@ -37,6 +48,9 @@ public class SingleplayerGame {
     return instance;
   }
 
+  /**
+   * Starts the game.
+   */
   public void start() {
 
     keyHandler.onPressed(KeyCode.ENTER, () -> {
@@ -46,22 +60,60 @@ public class SingleplayerGame {
     });
   }
 
+  /**
+   * Ends the game.
+   */
   public void end() { instance = null; }
 
+  /**
+   * Gets the countdown time in milliseconds.
+   *
+   * @return The countdown time in milliseconds.
+   */
   public Integer getCountDownMs() { return countDownMs; }
 
+  /**
+   * Gets the current game state.
+   *
+   * @return The current game state.
+   */
   public GameState getGameState() { return gameState; }
 
+  /**
+   * Sets the game state.
+   *
+   * @param gameState The game state to set.
+   */
   public void setGameState(GameState gameState) { this.gameState = gameState; }
-
+  /**
+   * Gets the sprite sheet.
+   *
+   * @return The sprite sheet.
+   */
   public SpriteSheet getSpriteSheet() { return spriteSheet; }
-
+  /**
+   * Gets the game level.
+   *
+   * @return The game level.
+   */
   public Level getLevel() { return level; }
-
+  /**
+   * Gets the player.
+   *
+   * @return The player.
+   */
   public Player getPlayer() { return player; }
-
+  /**
+   * Gets the list of bombs.
+   *
+   * @return The list of bombs.
+   */
   public ArrayList<Bomb> getBombs() { return bombs; }
-
+  /**
+   * Moves the player.
+   *
+   * @param deltaMs The time elapsed since the last update in milliseconds.
+   */
   public void movePlayer(double deltaMs) {
 
     Coord<Double> playerCoord = player.getCoord();
@@ -180,7 +232,11 @@ public class SingleplayerGame {
 
     player.setCoord(newCoord);
   }
-
+  /**
+   * Moves the characters.
+   *
+   * @param deltaMs The time elapsed since the last update in milliseconds.
+   */
   public void moveCharacters(double deltaMs) {
     for (Character character : level.getCharacters()) {
       if (character instanceof Player) {
@@ -254,7 +310,9 @@ public class SingleplayerGame {
       }
     }
   }
-
+  /**
+   * Adds a bomb to the game.
+   */
   public void addBomb() {
     Coord<Double> playerCoord = player.getCoord();
     Integer availableBombs = player.getAvailableBombs();
@@ -289,7 +347,11 @@ public class SingleplayerGame {
     airBlock.setEntity(newBomb);
     player.setAvailableBombs(availableBombs - 1);
   }
-
+  /**
+   * Main game loop.
+   *
+   * @param deltaMs The time elapsed since the last update in milliseconds.
+   */
   public void loop(double deltaMs) {
     if (gameState != GameState.RUNNING) {
       return;
@@ -323,7 +385,9 @@ public class SingleplayerGame {
     moveCharacters(deltaMs);
     handleBombs();
   }
-
+  /**
+   * Handles player invincibility.
+   */
   private void handleInvencibility() {
     Integer playerInvencibilityTicks = player.getInvincibilityTicks();
 
@@ -336,7 +400,9 @@ public class SingleplayerGame {
       player.setInvincibilityTicks(-1);
     }
   }
-
+  /**
+   * Handles bomb explosions and removal.
+   */
   private void handleBombs() {
     for (int i = 0; i < bombs.size(); i++) {
       Bomb bomb = bombs.get(i);
@@ -354,7 +420,11 @@ public class SingleplayerGame {
       }
     }
   }
-
+  /**
+   * Calculates game ticks based on time elapsed.
+   *
+   * @param deltaMs The time elapsed since the last update in milliseconds.
+   */
   private void calculateTick(double deltaMs) {
     currentTimeMs += deltaMs;
     if (currentTimeMs >= GameConstants.TICK_DURATION_MS) {

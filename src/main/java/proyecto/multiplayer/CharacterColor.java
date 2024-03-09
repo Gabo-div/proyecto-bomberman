@@ -1,3 +1,11 @@
 package proyecto.multiplayer;
 
-public enum CharacterColor { WHITE, BLACK, RED, BLUE }
+/**
+ * Enumeración que representa los colores de los personajes disponibles en el juego multiplayer.
+ */
+public enum CharacterColor { 
+    WHITE, // Blanco
+    BLACK, // Negro
+    RED,   // Rojo
+    BLUE   // Azul
+}

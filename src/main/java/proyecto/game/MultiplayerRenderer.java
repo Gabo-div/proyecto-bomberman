@@ -29,6 +29,9 @@ import proyecto.model.SpriteSheet;
 import proyecto.model.WallBlock;
 import proyecto.multiplayer.CharacterColor;
 
+/**
+ * Clase encargada de renderizar el juego multijugador.
+ */
 public class MultiplayerRenderer {
   private VBox box;
 
@@ -48,11 +51,21 @@ public class MultiplayerRenderer {
 
   private Affine defaultTransform;
 
+  /**
+   * Constructor de la clase MultiplayerRenderer.
+   * @param canvas El lienzo principal donde se renderiza el juego.
+   * @param box El VBox donde se encuentra el canvas.
+   */
   public MultiplayerRenderer(Canvas canvas, VBox box) {
     this.mainCanvas = canvas;
     this.box = box;
   }
 
+/**
+   * Redimensiona el lienzo en función del ancho y alto de la escena.
+   * @param sceneWidth El ancho de la escena.
+   * @param sceneHeight El alto de la escena.
+   */
   public void resizeCanvas(double sceneWidth, double sceneHeight) {
     Level level = game.getLevel();
 
@@ -89,6 +102,9 @@ public class MultiplayerRenderer {
     offGc.scale(blockSize, blockSize);
   }
 
+  /**
+   * Renderiza el juego.
+   */
   public void render() {
     if (game.getGameState() == GameState.NONE) {
       return;
@@ -120,7 +136,9 @@ public class MultiplayerRenderer {
       drawEnd();
     }
   }
-
+  /**
+   * Lógica para dibujar los bloques del nivel
+   */
   private void drawBlocks() {
     Sprite wallTopSprite = spriteSheet.getSprite("border_top");
     Sprite wallBottomSprite = spriteSheet.getSprite("border_bottom");
@@ -216,7 +234,10 @@ public class MultiplayerRenderer {
       }
     }
   }
-
+  /**
+   * Lógica para dibujar un PowerUp en el nivel
+   * @param powerUp representando el poder del cual se esta obteniendo
+   */
   private void drawPowerUp(PowerUp powerUp) {
     Sprite fireUpSprite = spriteSheet.getSprite("fire_up");
     Sprite bombUpSprite = spriteSheet.getSprite("bomb_up");
@@ -237,6 +258,9 @@ public class MultiplayerRenderer {
     }
   }
 
+    /**
+     * Lógica para dibujar las bombas y sus explosiones en el nivel
+     */
   private void drawBombs() {
     Sprite bombSprite = spriteSheet.getSprite("bomb");
     Sprite explosionCenterSprite = spriteSheet.getSprite("explosion_center");
@@ -338,7 +362,9 @@ public class MultiplayerRenderer {
       }
     }
   }
-
+  /**
+   * Lógica para dibujar a los jugadores en el nivel
+   */
   private void drawPlayers() {
     for (Player player : game.getPlayers()) {
       if (player.isDead()) {
@@ -366,7 +392,9 @@ public class MultiplayerRenderer {
       offGc.setGlobalAlpha(1);
     }
   }
-
+  /**
+   * Lógica para dibujar el espacio entre el juego y la información adicional
+   */
   private void drawGap() {
     Sprite borderLeftSprite = spriteSheet.getSprite("border_left_1");
     Sprite borderRightSprite = spriteSheet.getSprite("border_right_2");
@@ -398,7 +426,9 @@ public class MultiplayerRenderer {
       offGc.drawImage(imageRight, (canvasWidth / blockSize) - 1, y, 1, 1);
     }
   }
-
+  /**
+   * Lógica para dibujar la información adicional del juego (puntajes, vidas, etc.)
+   */
   private void drawInfo() {
 
     offGc.setTransform(defaultTransform);
@@ -432,7 +462,9 @@ public class MultiplayerRenderer {
       offGc.fillText(lifesStr, axisX + 2.5, infoCenter + 0.85, 1);
     }
   }
-
+  /**
+   * Lógica para dibujar la pantalla de fin de juego
+   */
   private void drawEnd() {
     offGc.setTransform(defaultTransform);
 
@@ -455,7 +487,9 @@ public class MultiplayerRenderer {
 
     offGc.scale(blockSize, blockSize);
   }
-
+  /**
+   * Lógica para dibujar la pantalla de juego pausado
+   */
   private void drawPaused() {
     offGc.setTransform(defaultTransform);
 

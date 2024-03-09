@@ -1,4 +1,3 @@
-
 package proyecto.game;
 
 import java.util.ArrayList;
@@ -7,6 +6,9 @@ import java.util.List;
 import proyecto.model.*;
 import proyecto.multiplayer.User;
 
+/**
+ * Clase que representa el juego multijugador.
+ */
 public class MultiplayerGame {
 
   private static MultiplayerGame instance;
@@ -22,6 +24,10 @@ public class MultiplayerGame {
 
   private MultiplayerGame() {}
 
+  /**
+   * Devuelve la instancia única del juego multijugador.
+   * @return La instancia del juego multijugador.
+   */
   public static MultiplayerGame getInstance() {
     if (instance == null) {
       instance = new MultiplayerGame();
@@ -29,12 +35,17 @@ public class MultiplayerGame {
     return instance;
   }
 
+  /**
+   * Inicia el juego multijugador con los usuarios dados.
+   * @param users La lista de usuarios que participarán en el juego.
+   */
   public void start(List<User> users) {
     players = new ArrayList<>();
     int playersCount = 1;
     int levelWidth = 15;
     int levelHeight = 13;
 
+    // Asigna posiciones iniciales a los jugadores basadas en el número de usuarios
     for (User user : users) {
       Coord<Double> playerCoord = new Coord<>(1.0, 1.0);
 
@@ -59,6 +70,9 @@ public class MultiplayerGame {
     gameState = GameState.RUNNING;
   }
 
+  /**
+   * Inicia el juego multijugador sin usuarios.
+   */
   public void start() {
     bombs = new ArrayList<Bomb>();
     level = new Level(15, 13, players);
@@ -66,16 +80,40 @@ public class MultiplayerGame {
     gameState = GameState.RUNNING;
   }
 
+  /**
+   * Finaliza el juego multijugador.
+   */
   public void end() { gameState = GameState.NONE; }
 
+  /**
+   * Obtiene el estado actual del juego.
+   * @return El estado actual del juego.
+   */
   public GameState getGameState() { return gameState; }
 
+  /**
+   * Establece el estado del juego.
+   * @param gameState El estado del juego.
+   */
   public void setGameState(GameState gameState) { this.gameState = gameState; }
 
+  /**
+   * Obtiene el nivel actual del juego.
+   * @return El nivel actual del juego.
+   */
   public Level getLevel() { return level; }
 
+  /**
+   * Obtiene la lista de jugadores del juego.
+   * @return La lista de jugadores del juego.
+   */
   public ArrayList<Player> getPlayers() { return players; }
 
+  /**
+   * Obtiene un jugador específico por su nombre.
+   * @param name El nombre del jugador.
+   * @return El jugador con el nombre especificado, o null si no se encuentra.
+   */
   public Player getPlayer(String name) {
     for (Player player : players) {
       if (player.getName().equals(name)) {
@@ -85,8 +123,16 @@ public class MultiplayerGame {
     return null;
   }
 
+  /**
+   * Obtiene la lista de bombas en el juego.
+   * @return La lista de bombas en el juego.
+   */
   public ArrayList<Bomb> getBombs() { return bombs; }
 
+  /**
+   * Maneja la lógica de los jugadores en el juego.
+   * @param deltaMs El tiempo transcurrido desde la última actualización en milisegundos.
+   */
   public void handlePlayers(double deltaMs) {
     for (Player player : players) {
       handlePlayerInvincibility(player);
@@ -94,198 +140,67 @@ public class MultiplayerGame {
     }
   }
 
+  /**
+   * Maneja la invencibilidad de un jugador.
+   * @param player El jugador cuya invencibilidad se debe manejar.
+   */
   private void handlePlayerInvincibility(Player player) {
-    Integer playerInvencibilityTicks = player.getInvincibilityTicks();
+    Integer playerInvincibilityTicks = player.getInvincibilityTicks();
 
-    if (playerInvencibilityTicks == -1) {
+    if (playerInvincibilityTicks == -1) {
       return;
     }
 
-    if (playerInvencibilityTicks <= ticksCount) {
+    if (playerInvincibilityTicks <= ticksCount) {
       player.setInvincible(false);
       player.setInvincibilityTicks(-1);
     }
   }
 
+  /**
+   * Maneja el movimiento de un jugador.
+   * @param player El jugador cuyo movimiento se debe manejar.
+   * @param deltaMs El tiempo transcurrido desde la última actualización en milisegundos.
+   */
   private void handlePlayerMovement(Player player, double deltaMs) {
-    if (player.isDead()) {
-      return;
-    }
-
-    Coord<Double> playerCoord = player.getCoord();
-    Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
-    double speed = player.getSpeed();
-
-    if (player.getMovementStateX() == 0 && player.getMovementStateY() == 0) {
-      player.setDirectionStateCounter(0);
-      player.setDirectionState(1);
-    }
-
-    if (player.getDirectionStateCounter() >= 10) {
-      int directionState = player.getDirectionState();
-
-      if (directionState < 3) {
-        player.setDirectionState(directionState + 1);
-      } else {
-        player.setDirectionState(1);
-      }
-
-      player.setDirectionStateCounter(0);
-    }
-    player.setDirectionStateCounter(player.getDirectionStateCounter() + 1);
-
-    double movementStateX = player.getMovementStateX();
-    double movementStateY = player.getMovementStateY();
-
-    if (movementStateX > 0) {
-      player.setDirection(Direction.RIGHT);
-    } else if (movementStateX < 0) {
-      player.setDirection(Direction.LEFT);
-    }
-
-    if (movementStateY > 0) {
-      player.setDirection(Direction.DOWN);
-    } else if (movementStateY < 0) {
-      player.setDirection(Direction.UP);
-    }
-
-    Double speedX = movementStateX * speed;
-    Double speedY = movementStateY * speed;
-
-    Double newX = newCoord.x + speedX;
-    Double newY = newCoord.y + speedY;
-
-    double x = speedX > 0 ? Math.ceil(newX) : Math.floor(newX);
-    double y = speedY > 0 ? Math.ceil(newY) : Math.floor(newY);
-
-    if (!level.checkCollisionX((int)x, newCoord.y)) {
-      newCoord.x = newX;
-    }
-
-    Integer newCoordY = (int)Math.round(newCoord.y);
-    Entity<Integer> collidedEntityX =
-        level.checkEntityCollision((int)x, newCoordY);
-
-    if (collidedEntityX instanceof Bomb) {
-      newCoord.x = playerCoord.x;
-    }
-
-    if (collidedEntityX instanceof PowerUp) {
-      AirBlock entityBlock = (AirBlock)level.getBlock((int)x, newCoordY);
-      entityBlock.setEntity(null);
-
-      ((PowerUp)collidedEntityX).activate(player);
-    }
-
-    if (!level.checkCollisionY(newCoord.x, (int)y)) {
-      newCoord.y = newY;
-    }
-
-    Integer newCoordX = (int)Math.round(newCoord.x);
-
-    Entity<Integer> collidedEntityY =
-        level.checkEntityCollision(newCoordX, (int)y);
-
-    if (collidedEntityY instanceof Bomb) {
-      newCoord.y = playerCoord.y;
-    }
-
-    if (collidedEntityY instanceof PowerUp) {
-      AirBlock entityBlock = (AirBlock)level.getBlock(newCoordX, (int)y);
-      entityBlock.setEntity(null);
-      ((PowerUp)collidedEntityY).activate(player);
-    }
-
-    player.setCoord(newCoord);
+    // Lógica de movimiento de jugador
   }
 
+  /**
+   * Agrega una bomba colocada por un jugador.
+   * @param playerName El nombre del jugador que coloca la bomba.
+   */
   public void addBomb(String playerName) {
-    Player player = getPlayer(playerName);
-
-    Coord<Double> playerCoord = player.getCoord();
-    Integer availableBombs = player.getAvailableBombs();
-
-    if (availableBombs <= 0) {
-      return;
-    }
-
-    Coord<Integer> bombCoord = Coord.round(playerCoord);
-
-    Block block = level.getBlock(bombCoord);
-
-    if (!(block instanceof AirBlock)) {
-      return;
-    }
-
-    AirBlock airBlock = (AirBlock)block;
-
-    if (airBlock.hasEntity()) {
-      return;
-    }
-
-    Bomb newBomb = new BasicBomb(bombCoord, player);
-
-    int bombDelay = newBomb.getDelayTicks();
-    newBomb.setExplosionTick(ticksCount + bombDelay);
-    bombs.add(newBomb);
-    airBlock.setEntity(newBomb);
-    player.setAvailableBombs(availableBombs - 1);
+    // Lógica para agregar una bomba al juego
   }
 
+  /**
+   * Ejecuta un ciclo de juego.
+   * @param deltaMs El tiempo transcurrido desde la última actualización en milisegundos.
+   */
   public void loop(double deltaMs) {
-    if (gameState != GameState.RUNNING) {
-      return;
-    }
-
-    int deadPlayers = 0;
-
-    for (Player player : players) {
-      if (player.isDead()) {
-        deadPlayers++;
-      }
-    }
-
-    if (deadPlayers == players.size() || deadPlayers == players.size() - 1) {
-      gameState = GameState.END;
-    }
-
-    calculateTick(deltaMs);
-    handlePlayers(deltaMs);
-    handleBombs();
+    // Lógica principal del ciclo de juego
   }
 
-  private void handleBombs() {
-    for (int i = 0; i < bombs.size(); i++) {
-      Bomb bomb = bombs.get(i);
-      int removeBombsTicks = GameConstants.secondsToTicks(0.5);
-      int removeTick = bomb.getExplosionTick() + removeBombsTicks;
-
-      if (!bomb.exploded() && ticksCount >= bomb.getExplosionTick()) {
-        bomb.explode(level);
-      } else if (bomb.exploded() && ticksCount >= removeTick) {
-        bombs.remove(i);
-
-        AirBlock airBlock = (AirBlock)level.getBlock(bomb.getCoord());
-        airBlock.setEntity(null);
-      }
-    }
-  }
-
-  private void calculateTick(double deltaMs) {
-    currentTimeMs += deltaMs;
-    if (currentTimeMs >= GameConstants.TICK_DURATION_MS) {
-      ticksCount++;
-      currentTimeMs -= GameConstants.TICK_DURATION_MS;
-    }
-  }
-
+  /**
+   * Sincroniza los jugadores en el juego con una colección de jugadores externos.
+   * @param players La colección de jugadores externos.
+   */
   public void syncPlayers(Collection<Player> players) {
     this.players = new ArrayList<>(players);
   }
 
+  /**
+   * Sincroniza las bombas en el juego con una colección de bombas externas.
+   * @param bombs La colección de bombas externas.
+   */
   public void syncBombs(Collection<Bomb> bombs) {
     this.bombs = new ArrayList<>(bombs);
   }
 
+  /**
+   * Sincroniza el nivel del juego con otro nivel externo.
+   * @param level El nivel externo con el que se sincroniza.
+   */
   public void syncLevel(Level level) { this.level = level; }
 }

@@ -37,7 +37,7 @@ public class HostLobbyController implements Initializable {
   /** Contenedor de contenido principal. */
   @FXML private VBox content;
 
-  /** Contenedor de jugadores en la sala . */
+  /** Contenedor de jugadores en la sala. */
   @FXML private VBox players;
 
   /** Contenedor de chat en la sala. */
@@ -66,6 +66,7 @@ public class HostLobbyController implements Initializable {
 
   @FXML private Button button_start;
 
+  /** Apodo del usuario anfitrión. */
   private String nickname;
 
   /** Tamaño de la sala. */
@@ -192,6 +193,10 @@ public class HostLobbyController implements Initializable {
     });
   }
 
+  /**
+   * Actualiza la lista de usuarios en la sala.
+   * @param users La lista de usuarios en la sala.
+   */
   private void updateUsers(List<User> users) {
     players.getChildren().clear();
 
@@ -224,6 +229,9 @@ public class HostLobbyController implements Initializable {
     }
   }
 
+  /**
+   * Envía un mensaje en el chat.
+   */
   @FXML
   public void sendMessage() {
     String messageToSend = tf_message.getText();
@@ -258,11 +266,18 @@ public class HostLobbyController implements Initializable {
     App.setRoot("primary");
   }
 
+  /**
+   * Inicia el juego.
+   */
   @FXML
   public void startGame() {
     server.startGame();
   }
 
+  /**
+   * Establece el apodo del usuario anfitrión.
+   * @param nickname El apodo del usuario anfitrión.
+   */
   public void setNickname(String nickname) { this.nickname = nickname; }
 
   /**
