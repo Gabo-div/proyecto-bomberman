@@ -4,6 +4,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Consumer;
+import proyecto.game.GameState;
+import proyecto.game.MultiplayerGame;
+import proyecto.model.Bomb;
+import proyecto.model.Level;
+import proyecto.model.Player;
+import proyecto.multiplayer.events.MovementData;
 import proyecto.multiplayer.events.NewMessageData;
 import proyecto.multiplayer.events.NewUserData;
 import proyecto.multiplayer.events.UsersData;
@@ -22,6 +28,8 @@ public class GameServer {
   private User hostUser;
   private HashMap<ClientHandler, User> users = new HashMap<>();
 
+  private MultiplayerGame game = MultiplayerGame.getInstance();
+
   private Consumer<ServerState> onStateChange;
   private Consumer<List<User>> onUsersChange;
   private Consumer<Message> onMessage;
@@ -38,11 +46,13 @@ public class GameServer {
   public void start(int roomSize) {
     try {
       this.roomSize = roomSize;
-      socketServer = new ServerSocket(0);
+      socketServer = new ServerSocket(0, 9000);
 
       socketServer.addListener("newUser", newUserHandler);
       socketServer.addListener("chatMessage", chatMessageHandler);
       socketServer.addListener("changeColor", colorHandler);
+      socketServer.addListener("movement", movementHandler);
+      socketServer.addListener("bomb", bombHandler);
 
       socketServer.addListener("disconnected", (data, handler) -> {
         if (users.containsKey(handler)) {
@@ -56,24 +66,25 @@ public class GameServer {
       });
 
       socketServer.run();
-      serverState = ServerState.CONNECTED;
-
-      if (onStateChange != null) {
-        onStateChange.accept(serverState);
-      }
+      changeState(ServerState.CONNECTED);
 
     } catch (Exception e) {
+      changeState(ServerState.ERROR);
       e.printStackTrace();
-      serverState = ServerState.ERROR;
+    }
+  }
 
-      if (onStateChange != null) {
-        onStateChange.accept(serverState);
-      }
+  private void changeState(ServerState state) {
+    serverState = state;
+    if (onStateChange != null) {
+      onStateChange.accept(serverState);
     }
   }
 
   public void stop() {
     if (socketServer != null) {
+      changeState(ServerState.DISCONNECTED);
+      users.clear();
       socketServer.close();
     }
   }
@@ -149,6 +160,25 @@ public class GameServer {
     }
   };
 
+  private SocketEventListener movementHandler = (data, handler) -> {
+    MovementData movementData =
+        (MovementData)SocketSerializer.deserialize(data);
+
+    if (game.getGameState() != GameState.RUNNING) {
+      return;
+    }
+
+    User user = users.get(handler);
+    Player player = game.getPlayer(user.getName());
+    player.setMovementStateX(movementData.stateX);
+    player.setMovementStateY(movementData.stateY);
+  };
+
+  private SocketEventListener bombHandler = (data, handler) -> {
+    User user = users.get(handler);
+    game.addBomb(user.getName());
+  };
+
   public void sendMessage(String message) {
     NewMessageData data = new NewMessageData();
 
@@ -171,6 +201,38 @@ public class GameServer {
     }
   }
 
+  public void syncClients() {
+    ArrayList<Player> players = game.getPlayers();
+    ArrayList<Bomb> bombs = game.getBombs();
+    Level level = game.getLevel();
+    GameState gameState = game.getGameState();
+
+    byte[] playersData = SocketSerializer.serialize(players);
+    byte[] bombsData = SocketSerializer.serialize(bombs);
+    byte[] levelData = SocketSerializer.serialize(level);
+    byte[] gameStateData = SocketSerializer.serialize(gameState);
+
+    socketServer.emit("syncPlayers", playersData);
+    socketServer.emit("syncBombs", bombsData);
+    socketServer.emit("syncLevel", levelData);
+    socketServer.emit("syncState", gameStateData);
+  }
+
+  public void startGame() {
+    if (users.size() < 2) {
+      return;
+    }
+
+    changeState(ServerState.INGAME);
+    socketServer.emit("startGame", null);
+  }
+
+  public void endGame() {
+    changeState(ServerState.CONNECTED);
+    game.end();
+    socketServer.emit("endGame", null);
+  }
+
   public ArrayList<User> getClients() {
     return new ArrayList<>(users.values());
   }
@@ -185,6 +247,8 @@ public class GameServer {
       onUsersChange.accept(new ArrayList<>(users.values()));
     }
   }
+
+  public User getHost() { return hostUser; }
 
   public void setOnStateChange(Consumer<ServerState> onStateChange) {
     this.onStateChange = onStateChange;
@@ -201,4 +265,6 @@ public class GameServer {
   public List<User> getUsers() { return new ArrayList<>(users.values()); }
 
   public int getPort() { return socketServer.getPort(); }
+
+  public ServerState getState() { return serverState; }
 }

@@ -1,10 +1,11 @@
 package proyecto.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Level {
+public class Level implements Serializable {
 
   private int width;
   private int height;
@@ -21,6 +22,39 @@ public class Level {
 
     Coord<Integer> playerCoord = Coord.round(player.getCoord());
 
+    generateWalls();
+
+    characters.add(player);
+    clearPositionsNearby(playerCoord.x, playerCoord.y);
+
+    generateCharacters(playerCoord);
+
+    Collections.shuffle(availablePositions);
+    List<Integer> brickPositions = availablePositions.subList(0, 35);
+
+    generateBricks(brickPositions);
+  }
+
+  public Level(int width, int height, List<Player> players) {
+    this.width = width;
+    this.height = height;
+    level = new Block[height][width];
+
+    generateWalls();
+
+    for (Player player : players) {
+      Coord<Integer> playerCoord = Coord.round(player.getCoord());
+      characters.add(player);
+      clearPositionsNearby(playerCoord.x, playerCoord.y);
+    }
+
+    Collections.shuffle(availablePositions);
+    List<Integer> brickPositions = availablePositions.subList(0, 70);
+
+    generateBricks(brickPositions);
+  }
+
+  private void generateWalls() {
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
         boolean isBorder =
@@ -37,10 +71,9 @@ public class Level {
         availablePositions.add(x + y * width);
       }
     }
+  }
 
-    characters.add(player);
-    clearPositionsNearby(playerCoord.x, playerCoord.y);
-
+  private void generateCharacters(Coord<Integer> playerCoord) {
     int enemiesCount = 0;
     while (enemiesCount < 5) {
       double enemydX = Math.random() * width - 1;
@@ -80,10 +113,9 @@ public class Level {
 
       enemiesCount++;
     }
+  }
 
-    Collections.shuffle(availablePositions);
-    List<Integer> brickPositions = availablePositions.subList(0, 35);
-
+  private void generateBricks(List<Integer> brickPositions) {
     for (int i = 0; i < brickPositions.size(); i++) {
       int x = brickPositions.get(i) % width;
       int y = brickPositions.get(i) / width;

@@ -35,7 +35,7 @@
       </HBox>
       <HBox fx:id="buttons">
         <Button fx:id="button_back" text="Volver" onAction="#switchToPrimary"/>
-        <Button fx:id="button_ready" text="Empezar"/>
+        <Button fx:id="button_start" text="Empezar" onAction="#startGame"/>
       </HBox>
   </VBox>
 </VBox>

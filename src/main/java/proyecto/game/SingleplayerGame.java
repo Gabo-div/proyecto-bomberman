@@ -62,7 +62,7 @@ public class SingleplayerGame {
 
   public ArrayList<Bomb> getBombs() { return bombs; }
 
-  public void movePlayer() {
+  public void movePlayer(double deltaMs) {
 
     Coord<Double> playerCoord = player.getCoord();
     Coord<Double> newCoord = new Coord<>(playerCoord.x, playerCoord.y);
@@ -181,7 +181,7 @@ public class SingleplayerGame {
     player.setCoord(newCoord);
   }
 
-  public void moveCharacters() {
+  public void moveCharacters(double deltaMs) {
     for (Character character : level.getCharacters()) {
       if (character instanceof Player) {
         continue;
@@ -319,8 +319,8 @@ public class SingleplayerGame {
     countDownMs -= (int)Math.round(deltaMs);
     calculateTick(deltaMs);
     handleInvencibility();
-    movePlayer();
-    moveCharacters();
+    movePlayer(deltaMs);
+    moveCharacters(deltaMs);
     handleBombs();
   }
 

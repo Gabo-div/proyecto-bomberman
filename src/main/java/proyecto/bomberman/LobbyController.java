@@ -2,6 +2,7 @@ package proyecto.bomberman;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -68,7 +69,8 @@ public class LobbyController implements Initializable {
   /** Campo de texto para el nombre de usuario. */
   @FXML private static TextField tf_username;
 
-  /** Instancia del cliente del juego. */
+  @FXML private Button button_start;
+
   private GameClient client = GameClient.getInstance();
 
   /** Nombre del usuario en el lobby. */
@@ -101,6 +103,17 @@ public class LobbyController implements Initializable {
     // Mostrar la vista de carga y esperar a que se carguen los datos del usuario y la sala
     loading.setVisible(true);
     content.setVisible(false);
+
+    button_start.setDisable(true);
+
+    if (client.getState() == ServerState.CONNECTED) {
+      updateUsers(client.getUsers());
+      startListeners();
+      label_room.setText("Sala: " + client.getPort());
+      loading.setVisible(false);
+      content.setVisible(true);
+      return;
+    }
 
     waitForData();
   }
@@ -149,6 +162,14 @@ public class LobbyController implements Initializable {
         client.joinLobby(nickname);
       };
 
+      if (state == ServerState.INGAME) {
+        try {
+          App.setRoot("multiplayer");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+
       if (state == ServerState.ERROR || state == ServerState.DISCONNECTED) {
         try {
           App.setRoot("lobbyError");
@@ -158,36 +179,8 @@ public class LobbyController implements Initializable {
       }
     });
 
-    /**
-     *  Escucha cambios en la lista de usuarios en el lobby
-     * */
-    client.setOnUsersChange((users) -> {
-      Platform.runLater(() -> {
-        players.getChildren().clear();
-
-        for (User user : users) {
-          // Obtener el color del personaje del usuario y mostrarlo junto con su nombre
-          CharacterColor color = user.getColor();
-          String characterColor = color.toString().toLowerCase();
-          Sprite sprite = SpriteSheet.getInstance().getSprite(characterColor + "_face");
-          ImageView imageView = new ImageView(sprite.getImage());
-          imageView.setFitHeight(24);
-          imageView.setFitWidth(24);
-
-          Text text = new Text(user.getName());
-          text.setFill(Color.BLACK);
-
-          HBox hbox = new HBox();
-          hbox.setPadding(new Insets(5, 10, 5, 10));
-          hbox.setAlignment(Pos.CENTER);
-
-          hbox.getChildren().add(imageView);
-          hbox.getChildren().add(text);
-
-          players.getChildren().add(hbox);
-        }
-      });
-    });
+    client.setOnUsersChange(
+        (users) -> { Platform.runLater(() -> { updateUsers(users); }); });
 
     /**  
      * Escucha mensajes del chat y muestra los mensajes en la interfaz de usuario
@@ -202,7 +195,7 @@ public class LobbyController implements Initializable {
       Color fill = Color.BLACK;
       String textMsg = name + ": " + messageToSend;
 
-      if (name.equals(nickname)) {
+      if (name.equals(client.getClientUser().getName())) {
         position = Pos.TOP_RIGHT;
         styles = "-fx-background-color: rgb(50, 50, 50); -fx-background-radius: 20px; -fx-padding: 5;";
         fill = Color.WHITE;
@@ -225,9 +218,32 @@ public class LobbyController implements Initializable {
     });
   }
 
-  /**
-   * Envía un mensaje en el chat.
-   */
+  private void updateUsers(List<User> users) {
+    players.getChildren().clear();
+
+    for (User user : users) {
+      CharacterColor color = user.getColor();
+      String characterColor = color.toString().toLowerCase();
+      Sprite sprite =
+          SpriteSheet.getInstance().getSprite(characterColor + "_face");
+      ImageView imageView = new ImageView(sprite.getImage());
+      imageView.setFitHeight(24);
+      imageView.setFitWidth(24);
+
+      Text text = new Text(user.getName());
+      text.setFill(Color.BLACK);
+
+      HBox hbox = new HBox();
+      hbox.setPadding(new Insets(5, 10, 5, 10));
+      hbox.setAlignment(Pos.CENTER);
+
+      hbox.getChildren().add(imageView);
+      hbox.getChildren().add(text);
+
+      players.getChildren().add(hbox);
+    }
+  }
+
   @FXML
   public void sendMessage() {
     String messageToSend = tf_message.getText();

@@ -2,6 +2,7 @@ package proyecto.bomberman;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -22,6 +23,7 @@ import proyecto.model.Sprite;
 import proyecto.model.SpriteSheet;
 import proyecto.multiplayer.CharacterColor;
 import proyecto.multiplayer.GameServer;
+import proyecto.multiplayer.ServerState;
 import proyecto.multiplayer.User;
 
 /**
@@ -62,7 +64,8 @@ public class HostLobbyController implements Initializable {
   /** Campo de texto para ingresar el nombre de usuario. */
   @FXML private static TextField tf_username;
 
-  /** Apodo del anfitrión de la sala. */
+  @FXML private Button button_start;
+
   private String nickname;
 
   /** Tamaño de la sala. */
@@ -85,12 +88,19 @@ public class HostLobbyController implements Initializable {
     URL cssURL = App.class.getResource("hostLobbyRoom.css");
     String urlString = cssURL.toString();
     box.getStylesheets().add(urlString);
-
-    // Esperar a que se obtengan los datos necesarios
-    waitForData();
+    button_start.setDisable(true);
 
     // Ajustar la altura del contenedor de contenido principal
     content.prefHeightProperty().bind(stage.heightProperty());
+
+    if (server.getState() == ServerState.CONNECTED) {
+      updateUsers(server.getUsers());
+      startListeners();
+      label_room.setText("Sala: " + server.getPort());
+      return;
+    }
+
+    waitForData();
   }
 
   /**
@@ -131,34 +141,20 @@ public class HostLobbyController implements Initializable {
    * Inicia los escuchadores para los cambios de usuarios y mensajes en el servidor.
    */
   private void startListeners() {
-    server.setOnUsersChange((users) -> {
+    server.setOnStateChange((state) -> {
       Platform.runLater(() -> {
-        // Limpiar el contenedor de jugadores en la sala 
-        players.getChildren().clear();
-
-        // Iterar sobre los usuarios y mostrarlos en el contenedor de jugadores
-        for (User user : users) {
-          CharacterColor color = user.getColor();
-          String characterColor = color.toString().toLowerCase();
-          Sprite sprite = SpriteSheet.getInstance().getSprite(characterColor + "_face");
-          ImageView imageView = new ImageView(sprite.getImage());
-          imageView.setFitHeight(24);
-          imageView.setFitWidth(24);
-
-          Text text = new Text(user.getName());
-          text.setFill(Color.BLACK);
-
-          HBox hbox = new HBox();
-          hbox.setPadding(new Insets(5, 10, 5, 10));
-          hbox.setAlignment(Pos.CENTER);
-
-          hbox.getChildren().add(imageView);
-          hbox.getChildren().add(text);
-
-          players.getChildren().add(hbox);
+        if (state == ServerState.INGAME) {
+          try {
+            App.setRoot("hostMultiplayer");
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
         }
       });
     });
+
+    server.setOnUsersChange(
+        (users) -> { Platform.runLater(() -> { updateUsers(users); }); });
 
     server.setOnMessage((message) -> {
       // Obtener el mensaje y el usuario que lo envió
@@ -172,7 +168,7 @@ public class HostLobbyController implements Initializable {
       Color fill = Color.BLACK;
       String textMsg = name + ": " + messageToSend;
 
-      if (name.equals(nickname)) {
+      if (name.equals(server.getHost().getName())) {
         position = Pos.TOP_RIGHT;
         styles = "-fx-background-color: rgb(50, 50, 50); -fx-background-radius: 20px; -fx-padding: 5;";
         fill = Color.WHITE;
@@ -196,9 +192,38 @@ public class HostLobbyController implements Initializable {
     });
   }
 
-  /**
-   * Envía un mensaje al chat.
-   */
+  private void updateUsers(List<User> users) {
+    players.getChildren().clear();
+
+    for (User user : users) {
+      CharacterColor color = user.getColor();
+      String characterColor = color.toString().toLowerCase();
+      Sprite sprite =
+          SpriteSheet.getInstance().getSprite(characterColor + "_face");
+      ImageView imageView = new ImageView(sprite.getImage());
+      imageView.setFitHeight(24);
+      imageView.setFitWidth(24);
+
+      Text text = new Text(user.getName());
+      text.setFill(Color.BLACK);
+
+      HBox hbox = new HBox();
+      hbox.setPadding(new Insets(5, 10, 5, 10));
+      hbox.setAlignment(Pos.CENTER);
+
+      hbox.getChildren().add(imageView);
+      hbox.getChildren().add(text);
+
+      players.getChildren().add(hbox);
+    }
+
+    if (users.size() >= 2) {
+      button_start.setDisable(false);
+    } else {
+      button_start.setDisable(true);
+    }
+  }
+
   @FXML
   public void sendMessage() {
     String messageToSend = tf_message.getText();
@@ -233,10 +258,11 @@ public class HostLobbyController implements Initializable {
     App.setRoot("primary");
   }
 
-  /**
-   * Establece el apodo del anfitrión de la sala de fiestas.
-   * @param nickname El apodo del anfitrión.
-   */
+  @FXML
+  public void startGame() {
+    server.startGame();
+  }
+
   public void setNickname(String nickname) { this.nickname = nickname; }
 
   /**

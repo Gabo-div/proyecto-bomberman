@@ -2,7 +2,7 @@ package proyecto.model;
 
 public abstract class Character extends Entity<Double> {
   protected Coord<Double> coord;
-  protected int lifes;
+  protected Integer lifes;
   protected Double speed;
   protected Direction direction;
   protected Integer directionState = 1;

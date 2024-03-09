@@ -4,6 +4,12 @@ import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import proyecto.game.GameState;
+import proyecto.game.MultiplayerGame;
+import proyecto.model.Bomb;
+import proyecto.model.Level;
+import proyecto.model.Player;
+import proyecto.multiplayer.events.MovementData;
 import proyecto.multiplayer.events.NewMessageData;
 import proyecto.multiplayer.events.NewUserData;
 import proyecto.multiplayer.events.UsersData;
@@ -24,6 +30,8 @@ public class GameClient {
   private Consumer<List<User>> onUsersChange;
   private Consumer<Message> onMessage;
 
+  private MultiplayerGame game = MultiplayerGame.getInstance();
+
   public GameClient() {}
 
   public static GameClient getInstance() {
@@ -38,7 +46,7 @@ public class GameClient {
       InetAddress address = InetAddress.getByName("localhost");
 
       changeState(ServerState.CONNECTING);
-      clientSocket = new ClientSocket(address, port);
+      clientSocket = new ClientSocket(address, port, 9000);
 
       clientSocket.addListener("users", usersHandler);
       clientSocket.addListener("chatMessage", chatMessageHandler);
@@ -57,6 +65,36 @@ public class GameClient {
 
       clientSocket.addListener(
           "disconnected", (data) -> { changeState(ServerState.DISCONNECTED); });
+
+      clientSocket.addListener("startGame",
+                               (data) -> { changeState(ServerState.INGAME); });
+
+      clientSocket.addListener(
+          "endGame", (data) -> { changeState(ServerState.CONNECTED); });
+
+      clientSocket.addListener("syncState", (data) -> {
+        GameState state = (GameState)SocketSerializer.deserialize(data);
+        game.setGameState(state);
+      });
+
+      clientSocket.addListener("syncPlayers", (data) -> {
+        ArrayList<Player> players =
+            (ArrayList<Player>)SocketSerializer.deserialize(data);
+
+        game.syncPlayers(players);
+      });
+
+      clientSocket.addListener("syncBombs", (data) -> {
+        ArrayList<Bomb> bombs =
+            (ArrayList<Bomb>)SocketSerializer.deserialize(data);
+
+        game.syncBombs(bombs);
+      });
+
+      clientSocket.addListener("syncLevel", (data) -> {
+        Level level = (Level)SocketSerializer.deserialize(data);
+        game.syncLevel(level);
+      });
 
       clientSocket.connect();
     } catch (Exception e) {
@@ -129,6 +167,15 @@ public class GameClient {
     clientSocket.emit("changeColor", SocketSerializer.serialize(colorName));
   }
 
+  public void sendMovement(int stateX, int stateY) {
+    MovementData movementData = new MovementData();
+    movementData.stateX = stateX;
+    movementData.stateY = stateY;
+    clientSocket.emit("movement", SocketSerializer.serialize(movementData));
+  }
+
+  public void sendBomb() { clientSocket.emit("bomb", null); }
+
   public void setOnStateChange(Consumer<ServerState> onStateChange) {
     this.onStateChange = onStateChange;
   }
@@ -142,4 +189,10 @@ public class GameClient {
   }
 
   public ArrayList<User> getUsers() { return users; }
+
+  public ServerState getState() { return serverState; }
+
+  public User getClientUser() { return clientUser; }
+
+  public int getPort() { return clientSocket.getPort(); }
 }

@@ -15,18 +15,21 @@ public class ClientSocket {
   boolean isConnected = false;
   boolean shouldClose = false;
 
-  byte[] inBuffer = new byte[1000];
-  byte[] outBuffer = new byte[1000];
+  byte[] inBuffer = new byte[2048];
+  byte[] outBuffer = new byte[2048];
 
   Integer timeoutMs = 5 * 1000;
   Long connectionTimeout;
 
   HashMap<String, ArrayList<ClientEventListener>> listeners = new HashMap<>();
 
-  public ClientSocket(InetAddress address, int port) throws IOException {
+  public ClientSocket(InetAddress address, int port, int packetSize)
+      throws IOException {
     this.socket = new DatagramSocket();
     this.address = address;
     this.port = port;
+    this.inBuffer = new byte[packetSize];
+    this.outBuffer = new byte[packetSize];
   }
 
   public void connect() {
@@ -123,4 +126,6 @@ public class ClientSocket {
       e.printStackTrace();
     }
   }
+
+  public int getPort() { return port; }
 }

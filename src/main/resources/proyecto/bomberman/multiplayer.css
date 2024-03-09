@@ -1,0 +1,6 @@
+@import "../../font.css";
+
+#box {
+  -fx-background-color: black;
+  -fx-alignment: center;
+}
