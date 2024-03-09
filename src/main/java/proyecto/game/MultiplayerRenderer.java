@@ -3,12 +3,14 @@ package proyecto.game;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
+import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 import javafx.scene.transform.Affine;
 import proyecto.model.AirBlock;
@@ -383,6 +385,13 @@ public class MultiplayerRenderer {
       Sprite playerSprite = spriteSheet.getSprite(spriteName);
       Image playerImage = playerSprite.getImage();
 
+      String nametag = player.getName();
+      double fontSize = 1;
+
+      offGc.setFont(new Font("Bomberman", fontSize));
+      offGc.setTextAlign(TextAlignment.CENTER);
+      offGc.fillText(nametag, playerCoord.x + 0.5, playerCoord.y - 0.5);
+
       if (invincible) {
         offGc.setGlobalAlpha(0.5);
       }
@@ -431,13 +440,9 @@ public class MultiplayerRenderer {
    */
   private void drawInfo() {
 
-    offGc.setTransform(defaultTransform);
-
-    // background
     offGc.setFill(Color.ORANGE);
-    offGc.fillRect(0, 0, canvasWidth, blockSize * 2);
+    offGc.fillRect(0, 0, canvasWidth / (blockSize), 2);
 
-    offGc.scale(blockSize, blockSize);
     offGc.setTextAlign(TextAlignment.CENTER);
     offGc.setFont(new Font("Bomberman", 1));
     double infoCenter = 0.5;
