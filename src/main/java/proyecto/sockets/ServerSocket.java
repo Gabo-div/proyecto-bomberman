@@ -55,6 +55,7 @@ public class ServerSocket {
 
   public void close() {
     emit("disconnected", null);
+    clients.clear();
     socket.close();
     shouldClose = true;
   }

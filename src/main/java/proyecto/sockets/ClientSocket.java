@@ -126,4 +126,6 @@ public class ClientSocket {
       e.printStackTrace();
     }
   }
+
+  public int getPort() { return port; }
 }

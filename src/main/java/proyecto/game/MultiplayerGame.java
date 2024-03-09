@@ -60,12 +60,13 @@ public class MultiplayerGame {
   }
 
   public void start() {
-    gameState = GameState.RUNNING;
     bombs = new ArrayList<Bomb>();
     level = new Level(15, 13, players);
+
+    gameState = GameState.RUNNING;
   }
 
-  public void end() { instance = null; }
+  public void end() { gameState = GameState.NONE; }
 
   public GameState getGameState() { return gameState; }
 
@@ -236,8 +237,19 @@ public class MultiplayerGame {
       return;
     }
 
-    calculateTick(deltaMs);
+    int deadPlayers = 0;
 
+    for (Player player : players) {
+      if (player.isDead()) {
+        deadPlayers++;
+      }
+    }
+
+    if (deadPlayers == players.size() || deadPlayers == players.size() - 1) {
+      gameState = GameState.END;
+    }
+
+    calculateTick(deltaMs);
     handlePlayers(deltaMs);
     handleBombs();
   }

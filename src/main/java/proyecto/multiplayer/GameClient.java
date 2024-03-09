@@ -69,16 +69,15 @@ public class GameClient {
       clientSocket.addListener("startGame",
                                (data) -> { changeState(ServerState.INGAME); });
 
+      clientSocket.addListener(
+          "endGame", (data) -> { changeState(ServerState.CONNECTED); });
+
       clientSocket.addListener("syncState", (data) -> {
         GameState state = (GameState)SocketSerializer.deserialize(data);
         game.setGameState(state);
       });
 
       clientSocket.addListener("syncPlayers", (data) -> {
-        if (game.getGameState() != GameState.RUNNING) {
-          return;
-        }
-
         ArrayList<Player> players =
             (ArrayList<Player>)SocketSerializer.deserialize(data);
 
@@ -86,10 +85,6 @@ public class GameClient {
       });
 
       clientSocket.addListener("syncBombs", (data) -> {
-        if (game.getGameState() != GameState.RUNNING) {
-          return;
-        }
-
         ArrayList<Bomb> bombs =
             (ArrayList<Bomb>)SocketSerializer.deserialize(data);
 
@@ -97,9 +92,6 @@ public class GameClient {
       });
 
       clientSocket.addListener("syncLevel", (data) -> {
-        if (game.getGameState() != GameState.RUNNING) {
-          return;
-        }
         Level level = (Level)SocketSerializer.deserialize(data);
         game.syncLevel(level);
       });
@@ -199,4 +191,8 @@ public class GameClient {
   public ArrayList<User> getUsers() { return users; }
 
   public ServerState getState() { return serverState; }
+
+  public User getClientUser() { return clientUser; }
+
+  public int getPort() { return clientSocket.getPort(); }
 }

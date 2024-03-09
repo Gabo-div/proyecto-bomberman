@@ -112,16 +112,12 @@ public class MultiplayerRenderer {
     drawGap();
     drawInfo();
 
-    if (game.getGameState() == GameState.GAMEOVER) {
-      drawGameOver();
-    }
-
     if (game.getGameState() == GameState.PAUSED) {
       drawPaused();
     }
 
-    if (game.getGameState() == GameState.WIN) {
-      drawWin();
+    if (game.getGameState() == GameState.END) {
+      drawEnd();
     }
   }
 
@@ -437,8 +433,7 @@ public class MultiplayerRenderer {
     }
   }
 
-  private void drawGameOver() {
-
+  private void drawEnd() {
     offGc.setTransform(defaultTransform);
 
     offGc.setGlobalAlpha(0.75);
@@ -451,34 +446,11 @@ public class MultiplayerRenderer {
     offGc.setTextAlign(TextAlignment.CENTER);
 
     offGc.setFont(new Font("Bomberman", blockSize));
-    offGc.fillText("Perdiste", canvasWidth / 2,
+    offGc.fillText("Juego terminado", canvasWidth / 2,
                    canvasHeight / 2 - blockSize / 3);
 
     offGc.setFont(new Font("Bomberman", blockSize / 3));
-    offGc.fillText("Pulsa ESC para volver", canvasWidth / 2,
-                   canvasHeight / 2 + blockSize / 3);
-
-    offGc.scale(blockSize, blockSize);
-  }
-
-  private void drawWin() {
-    offGc.setTransform(defaultTransform);
-
-    offGc.setGlobalAlpha(0.75);
-    offGc.setFill(Color.web("#000000"));
-    offGc.fillRect(0, 0, canvasWidth, canvasHeight);
-
-    offGc.setGlobalAlpha(1);
-
-    offGc.setFill(Color.WHITE);
-    offGc.setTextAlign(TextAlignment.CENTER);
-
-    offGc.setFont(new Font("Bomberman", blockSize));
-    offGc.fillText("Ganaste", canvasWidth / 2,
-                   canvasHeight / 2 - blockSize / 3);
-
-    offGc.setFont(new Font("Bomberman", blockSize / 3));
-    offGc.fillText("Pulsa ESC para volver", canvasWidth / 2,
+    offGc.fillText("Esperando host", canvasWidth / 2,
                    canvasHeight / 2 + blockSize / 3);
 
     offGc.scale(blockSize, blockSize);

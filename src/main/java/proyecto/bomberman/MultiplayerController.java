@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import proyecto.game.GameState;
 import proyecto.game.GameTimer;
 import proyecto.game.KeyHandler;
 import proyecto.game.MultiplayerGame;
@@ -32,6 +33,9 @@ public class MultiplayerController implements Initializable {
   private GameTimer gameTimer = new GameTimer() {
     @Override
     public void tick(double deltaMs) {
+      if (game.getGameState() != GameState.RUNNING) {
+        gameTimer.stop();
+      }
 
       Integer movementStateX = 0;
       Integer movementStateY = 0;
@@ -86,6 +90,17 @@ public class MultiplayerController implements Initializable {
     keyHandler.onPressed(KeyCode.ENTER, () -> {
       if (client.getState() == ServerState.INGAME) {
         client.sendBomb();
+      }
+    });
+
+    client.setOnStateChange((state) -> {
+      if (state == ServerState.CONNECTED) {
+        try {
+          game.end();
+          App.setRoot("lobbyRoom");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
       }
     });
 

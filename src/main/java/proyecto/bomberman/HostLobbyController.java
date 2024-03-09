@@ -2,6 +2,7 @@ package proyecto.bomberman;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -56,9 +57,16 @@ public class HostLobbyController implements Initializable {
     box.getStylesheets().add(urlString);
     button_start.setDisable(true);
 
-    waitForData();
-
     content.prefHeightProperty().bind(stage.heightProperty());
+
+    if (server.getState() == ServerState.CONNECTED) {
+      updateUsers(server.getUsers());
+      startListeners();
+      label_room.setText("Sala: " + server.getPort());
+      return;
+    }
+
+    waitForData();
   }
 
   private void waitForData() {
@@ -101,39 +109,8 @@ public class HostLobbyController implements Initializable {
       });
     });
 
-    server.setOnUsersChange((users) -> {
-      Platform.runLater(() -> {
-        players.getChildren().clear();
-
-        for (User user : users) {
-          CharacterColor color = user.getColor();
-          String characterColor = color.toString().toLowerCase();
-          Sprite sprite =
-              SpriteSheet.getInstance().getSprite(characterColor + "_face");
-          ImageView imageView = new ImageView(sprite.getImage());
-          imageView.setFitHeight(24);
-          imageView.setFitWidth(24);
-
-          Text text = new Text(user.getName());
-          text.setFill(Color.BLACK);
-
-          HBox hbox = new HBox();
-          hbox.setPadding(new Insets(5, 10, 5, 10));
-          hbox.setAlignment(Pos.CENTER);
-
-          hbox.getChildren().add(imageView);
-          hbox.getChildren().add(text);
-
-          players.getChildren().add(hbox);
-        }
-
-        if (users.size() >= 2) {
-          button_start.setDisable(false);
-        } else {
-          button_start.setDisable(true);
-        }
-      });
-    });
+    server.setOnUsersChange(
+        (users) -> { Platform.runLater(() -> { updateUsers(users); }); });
 
     server.setOnMessage((message) -> {
       String messageToSend = message.getMessage();
@@ -146,7 +123,7 @@ public class HostLobbyController implements Initializable {
       Color fill = Color.BLACK;
       String textMsg = name + ": " + messageToSend;
 
-      if (name.equals(nickname)) {
+      if (name.equals(server.getHost().getName())) {
         position = Pos.TOP_RIGHT;
         styles =
             "-fx-background-color: rgb(50, 50, 50); -fx-background-radius: 20px; -fx-padding: 5;";
@@ -168,6 +145,38 @@ public class HostLobbyController implements Initializable {
 
       Platform.runLater(() -> { vbox_messages.getChildren().add(hbox); });
     });
+  }
+
+  private void updateUsers(List<User> users) {
+    players.getChildren().clear();
+
+    for (User user : users) {
+      CharacterColor color = user.getColor();
+      String characterColor = color.toString().toLowerCase();
+      Sprite sprite =
+          SpriteSheet.getInstance().getSprite(characterColor + "_face");
+      ImageView imageView = new ImageView(sprite.getImage());
+      imageView.setFitHeight(24);
+      imageView.setFitWidth(24);
+
+      Text text = new Text(user.getName());
+      text.setFill(Color.BLACK);
+
+      HBox hbox = new HBox();
+      hbox.setPadding(new Insets(5, 10, 5, 10));
+      hbox.setAlignment(Pos.CENTER);
+
+      hbox.getChildren().add(imageView);
+      hbox.getChildren().add(text);
+
+      players.getChildren().add(hbox);
+    }
+
+    if (users.size() >= 2) {
+      button_start.setDisable(false);
+    } else {
+      button_start.setDisable(true);
+    }
   }
 
   @FXML

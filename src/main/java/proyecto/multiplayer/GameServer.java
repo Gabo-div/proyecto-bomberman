@@ -83,6 +83,8 @@ public class GameServer {
 
   public void stop() {
     if (socketServer != null) {
+      changeState(ServerState.DISCONNECTED);
+      users.clear();
       socketServer.close();
     }
   }
@@ -223,6 +225,12 @@ public class GameServer {
 
     changeState(ServerState.INGAME);
     socketServer.emit("startGame", null);
+  }
+
+  public void endGame() {
+    changeState(ServerState.CONNECTED);
+    game.end();
+    socketServer.emit("endGame", null);
   }
 
   public ArrayList<User> getClients() {

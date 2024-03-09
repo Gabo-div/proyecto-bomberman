@@ -2,6 +2,7 @@ package proyecto.bomberman;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -69,6 +70,15 @@ public class LobbyController implements Initializable {
 
     button_start.setDisable(true);
 
+    if (client.getState() == ServerState.CONNECTED) {
+      updateUsers(client.getUsers());
+      startListeners();
+      label_room.setText("Sala: " + client.getPort());
+      loading.setVisible(false);
+      content.setVisible(true);
+      return;
+    }
+
     waitForData();
   }
 
@@ -125,33 +135,8 @@ public class LobbyController implements Initializable {
       }
     });
 
-    client.setOnUsersChange((users) -> {
-      Platform.runLater(() -> {
-        players.getChildren().clear();
-
-        for (User user : users) {
-          CharacterColor color = user.getColor();
-          String characterColor = color.toString().toLowerCase();
-          Sprite sprite =
-              SpriteSheet.getInstance().getSprite(characterColor + "_face");
-          ImageView imageView = new ImageView(sprite.getImage());
-          imageView.setFitHeight(24);
-          imageView.setFitWidth(24);
-
-          Text text = new Text(user.getName());
-          text.setFill(Color.BLACK);
-
-          HBox hbox = new HBox();
-          hbox.setPadding(new Insets(5, 10, 5, 10));
-          hbox.setAlignment(Pos.CENTER);
-
-          hbox.getChildren().add(imageView);
-          hbox.getChildren().add(text);
-
-          players.getChildren().add(hbox);
-        }
-      });
-    });
+    client.setOnUsersChange(
+        (users) -> { Platform.runLater(() -> { updateUsers(users); }); });
 
     client.setOnMessage((message) -> {
       String messageToSend = message.getMessage();
@@ -164,7 +149,7 @@ public class LobbyController implements Initializable {
       Color fill = Color.BLACK;
       String textMsg = name + ": " + messageToSend;
 
-      if (name.equals(nickname)) {
+      if (name.equals(client.getClientUser().getName())) {
         position = Pos.TOP_RIGHT;
         styles =
             "-fx-background-color: rgb(50, 50, 50); -fx-background-radius: 20px; -fx-padding: 5;";
@@ -186,6 +171,32 @@ public class LobbyController implements Initializable {
 
       Platform.runLater(() -> { vbox_messages.getChildren().add(hbox); });
     });
+  }
+
+  private void updateUsers(List<User> users) {
+    players.getChildren().clear();
+
+    for (User user : users) {
+      CharacterColor color = user.getColor();
+      String characterColor = color.toString().toLowerCase();
+      Sprite sprite =
+          SpriteSheet.getInstance().getSprite(characterColor + "_face");
+      ImageView imageView = new ImageView(sprite.getImage());
+      imageView.setFitHeight(24);
+      imageView.setFitWidth(24);
+
+      Text text = new Text(user.getName());
+      text.setFill(Color.BLACK);
+
+      HBox hbox = new HBox();
+      hbox.setPadding(new Insets(5, 10, 5, 10));
+      hbox.setAlignment(Pos.CENTER);
+
+      hbox.getChildren().add(imageView);
+      hbox.getChildren().add(text);
+
+      players.getChildren().add(hbox);
+    }
   }
 
   @FXML

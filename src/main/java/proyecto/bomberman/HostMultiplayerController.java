@@ -102,6 +102,17 @@ public class HostMultiplayerController implements Initializable {
       }
     });
 
+    keyHandler.onPressed(KeyCode.ESCAPE, () -> {
+      if (game.getGameState() == GameState.END) {
+        try {
+          server.endGame();
+          App.setRoot("hostLobbyRoom");
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      }
+    });
+
     gameTimer.start();
   }
 }
